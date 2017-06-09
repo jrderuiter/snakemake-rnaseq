@@ -3,8 +3,21 @@
 [![Snakemake](https://img.shields.io/badge/snakemake-≥3.12.0-brightgreen.svg)](https://snakemake.bitbucket.io)
 [![Build Status](https://travis-ci.org/snakemake-workflows/rnaseq-star-featurecounts.svg?branch=master)](https://travis-ci.org/snakemake-workflows/rnaseq-star-featurecounts)
 
-This is the template for a new Snakemake workflow. Replace this text with a comprehensive description, covering the purpose and domain.
-Insert your code into the respective folders, i.e. `scripts`, `rules` and `envs`. Define the entry point of the workflow in the `Snakefile` and the main configuration in the `config.yaml` file.
+This is a Snakemake workflow for generating gene expression counts from
+RNA-sequencing data using STAR and featureCounts (from the subread package).
+
+The workflow essentially performs the following steps:
+
+    - Cutadapt is used to trim the input reads for adapters and/or poor-quality
+      base calls.
+    - The trimmed reads are aligned to the reference genome using STAR.
+    - The resulting alignments are sorted and indexed using sambamba.
+    - featureCounts is used to generate gene expression counts.
+    - The (per sample) counts are merged into a single count file.
+    - Summary QC statistics are generated using multiqc.
+
+The final output (the merged counts) is located in the tab-separated file
+`merged.txt`.
 
 ## Authors
 
@@ -15,7 +28,7 @@ Insert your code into the respective folders, i.e. `scripts`, `rules` and `envs`
 ### Step 1: Install workflow
 
 If you simply want to use this workflow, download and extract the [latest release](https://github.com/snakemake-workflows/rnaseq-star-featurecounts/releases).
-If you intend to modify and further develop this workflow, fork this reposity. Please consider providing any generally applicable modifications via a pull request.
+If you intend to modify and further develop this workflow, fork this repository. Please consider providing any generally applicable modifications via a pull request.
 
 In any case, if you use this workflow in a paper, don't forget to give credits to the authors by citing the URL of this repository and, if available, its DOI (see above).
 

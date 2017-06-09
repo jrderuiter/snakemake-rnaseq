@@ -8,13 +8,14 @@ RNA-sequencing data using STAR and featureCounts (from the subread package).
 
 The workflow essentially performs the following steps:
 
-    - Cutadapt is used to trim the input reads for adapters and/or poor-quality
-      base calls.
-    - The trimmed reads are aligned to the reference genome using STAR.
-    - The resulting alignments are sorted and indexed using sambamba.
-    - featureCounts is used to generate gene expression counts.
-    - The (per sample) counts are merged into a single count file.
-    - Summary QC statistics are generated using multiqc.
+* Cutadapt is used to trim the input reads for adapters and/or poor-quality
+  base calls.
+* Fastqc is used to perform QC on the trimmed reads.
+* The trimmed reads are aligned to the reference genome using STAR.
+* The resulting alignments are sorted and indexed using sambamba.
+* featureCounts is used to generate gene expression counts.
+* The (per sample) counts are merged into a single count file.
+* Summary QC statistics are generated using multiqc.
 
 The final output (the merged counts) is located in the tab-separated file
 `merged.txt`.

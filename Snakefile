@@ -19,6 +19,7 @@ rule all:
         'multiqc_report.html'
 
 include: 'rules/cutadapt.smk'
+include: 'rules/fastqc.smk'
 include: 'rules/star.smk'
 include: 'rules/counts.smk'
 include: 'rules/multiqc.smk'

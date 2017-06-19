@@ -1,23 +1,24 @@
-
 rule feature_counts:
     input:
-        bam='star/{sample}/Aligned.sortedByCoord.out.bam',
-        bai='star/{sample}/Aligned.sortedByCoord.out.bam.bai'
+        bam='bam/merged/{sample}.bam',
+        bai='bam/merged/{sample}.bam.bai',
     output:
-        'counts/{sample}.txt'
+        counts='counts/{sample}.txt',
+        summary='qc/feature_counts/{sample}.txt'
     params:
         annotation=config['feature_counts']['annotation'],
         extra=config['feature_counts']['extra']
-    threads: 2
+    threads:
+        config['feature_counts']['threads']
     log:
         'logs/feature_counts/{sample}.txt'
-    shell:
-        'featureCounts {params.extra} -a {params.annotation}'
-        ' -o {output} -T {threads} {input.bam} 2> {log}'
+    wrapper:
+        'file://' + path.join(workflow.basedir, 'wrappers/subread/feature_counts')
+
 
 rule merge_counts:
     input:
-        expand('counts/{sample}.txt', sample=samples)
+        expand('counts/{sample}.txt', sample=get_samples())
     output:
         'merged.txt'
     run:

@@ -1,3 +1,2 @@
-id
-S1
-
+sample	lane	fastq1
+S1	L001	fastq/raw/S1.R1.fastq.gz

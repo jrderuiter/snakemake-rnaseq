@@ -1,7 +1,7 @@
-
 cutadapt:
-  options:
-    '-a AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC --minimum-length 20'
+  extra: >-
+    -a AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC
+    --minimum-length 20
 
 star:
   index: '/path/to/index'
@@ -9,11 +9,18 @@ star:
   threads: 8
 
 sambamba_sort:
-  params: ''
+  extra: ''
   threads: 8
+
+picard_merge_bam:
+  extra: ''
 
 sambamba_index:
 
 feature_counts:
   annotation: '/path/to/gtf'
+  extra: ''
+  threads: 5
+
+fastqc:
   extra: ''

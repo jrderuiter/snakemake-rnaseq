@@ -31,8 +31,8 @@ def get_sample_lanes(sample):
 
 rule all:
     input:
-        'merged.txt',
-        'multiqc_report.html'
+        'counts/merged/counts.txt',
+        'qc/multiqc_report.html'
 
 include: 'rules/fastq.smk'
 include: 'rules/alignment.smk'

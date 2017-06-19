@@ -3,7 +3,7 @@ rule feature_counts:
         bam='bam/merged/{sample}.bam',
         bai='bam/merged/{sample}.bam.bai',
     output:
-        counts='counts/{sample}.txt',
+        counts='counts/per_sample/{sample}.txt',
         summary='qc/feature_counts/{sample}.txt'
     params:
         annotation=config['feature_counts']['annotation'],
@@ -18,9 +18,9 @@ rule feature_counts:
 
 rule merge_counts:
     input:
-        expand('counts/{sample}.txt', sample=get_samples())
+        expand('counts/per_sample/{sample}.txt', sample=get_samples())
     output:
-        'merged.txt'
+        'counts/merged/counts.txt'
     run:
         def merge_counts(file_paths):
             frames = (pd.read_csv(fp, sep='\t', skiprows=1,

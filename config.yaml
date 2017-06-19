@@ -22,5 +22,8 @@ feature_counts:
   extra: ''
   threads: 5
 
+multiqc:
+  extra: ''
+
 fastqc:
   extra: ''

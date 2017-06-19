@@ -4,9 +4,11 @@ rule multiqc:
         fastqc=expand('qc/fastqc/{sample_lane}.{pair}_fastqc.html',
                       sample_lane=get_samples_with_lane(), pair=['R1']),
     output:
-        'multiqc_report.html'
-    shell:
-        'multiqc --force .'
+        'qc/multiqc_report.html'
+    params:
+        config['multiqc']['extra']
+    wrapper:
+        'file://' + path.join(workflow.basedir, 'wrappers/multiqc')
 
 
 rule fastqc:

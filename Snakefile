@@ -8,6 +8,7 @@ configfile: 'config.yaml'
 ################################################################################
 
 samples = pd.read_csv('samples.tsv', sep='\t')
+paired = config.get("paired", False)
 
 
 ################################################################################
@@ -15,14 +16,19 @@ samples = pd.read_csv('samples.tsv', sep='\t')
 ################################################################################
 
 def get_samples():
-    return list(samples['sample'].unique())
+    """Returns list of all samples."""
+    return list(samples["sample"].unique())
+
 
 def get_samples_with_lane():
-    return list((samples['sample'] + '.' + samples['lane']).unique())
+    """Returns list of all combined lane/sample identifiers."""
+    return list((samples["sample"] + "." + samples["lane"]).unique())
+
 
 def get_sample_lanes(sample):
-    subset = samples.loc[samples['sample'] == sample]
-    return list(subset['lane'].unique())
+    """Returns lanes for given sample."""
+    subset = samples.loc[samples["sample"] == sample]
+    return list(subset["lane"].unique())
 
 
 ################################################################################
@@ -31,10 +37,11 @@ def get_sample_lanes(sample):
 
 rule all:
     input:
-        'counts/merged/counts.txt',
-        'qc/multiqc_report.html'
+        "counts/merged/counts.norm_log2.txt",
+        "qc/multiqc_report.html"
 
-include: 'rules/fastq.smk'
-include: 'rules/alignment.smk'
-include: 'rules/counts.smk'
-include: 'rules/qc.smk'
+include: "rules/input.smk"
+include: "rules/fastq.smk"
+include: "rules/alignment.smk"
+include: "rules/counts.smk"
+include: "rules/qc.smk"

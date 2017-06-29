@@ -1,21 +1,37 @@
+input:
+  dir: 'input'
+  # ftp:
+  #   username: 'user'
+  #   password: 'pass'
+
+paired: True
+
+# Single-end config for cutadapt.
 cutadapt:
   extra: >-
     -a AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC
     --minimum-length 20
 
+# Paired-end config for cutadapt.
+# cutadapt:
+#   extra: >-
+#     -a AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC
+#     -A AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGTAGATCTCGGTGGTCGCCGTATCATT
+#     -q 20
+#     --minimum-length 20
+
 star:
   index: '/path/to/index'
   extra: ''
-  threads: 8
+  threads: 10
 
 sambamba_sort:
   extra: ''
-  threads: 8
+  threads: 10
 
-picard_merge_bam:
+samtools_merge:
   extra: ''
-
-sambamba_index:
+  threads: 10
 
 feature_counts:
   annotation: '/path/to/gtf'

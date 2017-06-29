@@ -1,2 +1,3 @@
-sample	lane	fastq1
-S1	L001	fastq/raw/S1.R1.fastq.gz
+sample	lane	fastq1	fastq2
+S1	L001	S1.L001.R1.fastq.gz	S1.L001.R2.fastq.gz
+S1	L002	S1.L002.R1.fastq.gz	S1.L001.R2.fastq.gz

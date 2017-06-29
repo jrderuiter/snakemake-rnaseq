@@ -1,59 +1,66 @@
+def star_inputs(wildcards):
+    base_path = "fastq/trimmed/{sample}.{lane}.{{pair}}.fastq.gz".format(
+        sample=wildcards.sample, lane=wildcards.lane)
+    pairs = ["R1", "R2"] if paired else ["R1"]
+    return expand(base_path, pair=pairs)
+
+
 rule star:
     input:
-        sample=['fastq/trimmed/{sample}.{lane}.R1.fastq.gz']
+        sample=star_inputs
     output:
-        temp('bam/star/{sample}.{lane}/Aligned.out.bam')
+        temp("bam/star/{sample}.{lane}/Aligned.out.bam")
     log:
-        'logs/star/{sample}.{lane}.log'
+        "logs/star/{sample}.{lane}.log"
     params:
-        index=config['star']['index'],
-        extra=config['star']['extra']
+        index=config["star"]["index"],
+        extra=config["star"]["extra"]
     threads:
-        config['star']['threads']
+        config["star"]["threads"]
     wrapper:
-        '0.15.4/bio/star/align'
+        "0.17.0/bio/star/align"
 
 
 rule sambamba_sort:
     input:
-        'bam/star/{sample}.{lane}/Aligned.out.bam'
+        "bam/star/{sample}.{lane}/Aligned.out.bam"
     output:
-        'bam/sorted/{sample}.{lane}.bam'
+        "bam/sorted/{sample}.{lane}.bam"
     params:
-        config['sambamba_sort']['extra']
+        config["sambamba_sort"]["extra"]
     threads:
-        config['sambamba_sort']['threads']
+        config["sambamba_sort"]["threads"]
     wrapper:
-        '0.15.4/bio/sambamba/sort'
+        "0.17.0/bio/sambamba/sort"
 
 
 def merge_inputs(wildcards):
     lanes = get_sample_lanes(wildcards.sample)
 
-    file_paths = ['bam/sorted/{}.{}.bam'.format(
+    file_paths = ["bam/sorted/{}.{}.bam".format(
                     wildcards.sample, lane)
                   for lane in lanes]
 
     return file_paths
 
 
-rule picard_merge_bam:
+rule samtools_merge:
     input:
         merge_inputs
     output:
-        'bam/merged/{sample}.bam'
+        "bam/merged/{sample}.bam"
     params:
-        config['picard_merge_bam']['extra']
-    log:
-        'logs/picard_merge_bam/{sample}.log'
+        config["samtools_merge"]["extra"]
+    threads:
+        config["samtools_merge"]["threads"]
     wrapper:
-        'file://' + path.join(workflow.basedir, 'wrappers/picard/mergesamfiles')
+        "0.17.0/bio/samtools/merge"
 
 
 rule samtools_index:
     input:
-        'bam/merged/{sample}.bam'
+        "bam/merged/{sample}.bam"
     output:
-        'bam/merged/{sample}.bam.bai'
+        "bam/merged/{sample}.bam.bai"
     wrapper:
-        '0.15.4/bio/samtools/index'
+        "0.17.0/bio/samtools/index"

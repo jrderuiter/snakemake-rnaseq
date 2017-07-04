@@ -8,7 +8,8 @@ configfile: 'config.yaml'
 ################################################################################
 
 samples = pd.read_csv('samples.tsv', sep='\t')
-paired = config.get("paired", False)
+is_paired = config["general"].get("paired", False)
+is_pdx = config["general"].get("pdx", False)
 
 
 ################################################################################
@@ -37,11 +38,16 @@ def get_sample_lanes(sample):
 
 rule all:
     input:
-        "counts/merged/counts.norm_log2.txt",
+        "counts/merged/counts.log2.txt",
         "qc/multiqc_report.html"
 
 include: "rules/input.smk"
 include: "rules/fastq.smk"
-include: "rules/alignment.smk"
 include: "rules/counts.smk"
 include: "rules/qc.smk"
+
+if is_pdx:
+    include: "rules/alignment_pdx.smk"
+else:
+    include: "rules/alignment.smk"
+

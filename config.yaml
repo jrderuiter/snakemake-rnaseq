@@ -1,27 +1,47 @@
+################################################################################
+# General configuration                                                        #
+################################################################################
+
+general:
+  paired: True
+  pdx: False
+
+
+################################################################################
+# Input configuration                                                          #
+################################################################################
+
 input:
   dir: 'input'
   # ftp:
   #   username: 'user'
   #   password: 'pass'
 
-paired: True
+
+################################################################################
+# Step configuration                                                           #
+################################################################################
+
+#### General/shared steps ####
 
 # Single-end config for cutadapt.
-cutadapt:
+cutadapt_se:
   extra: >-
     -a AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC
     --minimum-length 20
 
 # Paired-end config for cutadapt.
-# cutadapt:
-#   extra: >-
-#     -a AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC
-#     -A AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGTAGATCTCGGTGGTCGCCGTATCATT
-#     -q 20
-#     --minimum-length 20
+cutadapt_pe:
+  extra: >-
+    -a AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC
+    -A AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGTAGATCTCGGTGGTCGCCGTATCATT
+    -q 20
+    --minimum-length 20
 
 star:
   index: '/path/to/index'
+  # Extra argument, required for PDX processing.
+  index_host: '/path/to/host/index'
   extra: ''
   threads: 10
 
@@ -43,3 +63,12 @@ multiqc:
 
 fastqc:
   extra: ''
+
+#### PDX-specific steps ####
+
+disambiguate:
+  extra: ''
+
+sambamba_sort:
+  extra: ''
+  threads: 5

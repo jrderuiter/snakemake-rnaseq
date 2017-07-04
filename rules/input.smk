@@ -1,3 +1,5 @@
+from os import path
+
 from snakemake.remote.HTTP import RemoteProvider as HTTPRemoteProvider
 from snakemake.remote.FTP import RemoteProvider as FTPRemoteProvider
 

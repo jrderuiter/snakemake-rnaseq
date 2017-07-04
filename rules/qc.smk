@@ -1,9 +1,25 @@
-rule multiqc:
-    input:
-        expand("qc/feature_counts/{sample}.txt", sample=get_samples()),
+def multiqc_inputs(wildcards):
+    """Returns inputs for multiqc, which vary depending on whether pipeline
+       is processing normal or PDX data and whether the data is paired."""
+
+    inputs = [
         expand("qc/fastqc/{sample_lane}.{pair}_fastqc.html",
                sample_lane=get_samples_with_lane(),
-               pair=["R1", "R2"] if paired else ["R1"])
+               pair=["R1", "R2"] if is_paired else ["R1"]),
+        expand("qc/cutadapt/{sample_lane}.txt",
+               sample_lane=get_samples_with_lane()),
+        expand("qc/samtools_stats/{sample}.txt", sample=get_samples())
+    ]
+
+    if is_pdx:
+        inputs += [expand("qc/disambiguate/{sample}.txt", sample=get_samples())]
+
+    return [input_ for sub_inputs in inputs for input_ in sub_inputs]
+
+
+rule multiqc:
+    input:
+        multiqc_inputs
     output:
         "qc/multiqc_report.html"
     params:
@@ -24,3 +40,12 @@ rule fastqc:
         config["fastqc"]["extra"]
     wrapper:
         "0.17.0/bio/fastqc"
+
+
+rule samtools_stats:
+    input:
+        "bam/final/{sample}.bam"
+    output:
+        "qc/samtools_stats/{sample}.txt"
+    wrapper:
+        "0.17.0/bio/samtools/stats"

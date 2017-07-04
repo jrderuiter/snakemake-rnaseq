@@ -1,7 +1,7 @@
 def star_inputs(wildcards):
     base_path = "fastq/trimmed/{sample}.{lane}.{{pair}}.fastq.gz".format(
         sample=wildcards.sample, lane=wildcards.lane)
-    pairs = ["R1", "R2"] if paired else ["R1"]
+    pairs = ["R1", "R2"] if is_paired else ["R1"]
     return expand(base_path, pair=pairs)
 
 
@@ -48,7 +48,7 @@ rule samtools_merge:
     input:
         merge_inputs
     output:
-        "bam/merged/{sample}.bam"
+        "bam/final/{sample}.bam"
     params:
         config["samtools_merge"]["extra"]
     threads:
@@ -59,8 +59,8 @@ rule samtools_merge:
 
 rule samtools_index:
     input:
-        "bam/merged/{sample}.bam"
+        "bam/final/{sample}.bam"
     output:
-        "bam/merged/{sample}.bam.bai"
+        "bam/final/{sample}.bam.bai"
     wrapper:
         "0.17.0/bio/samtools/index"

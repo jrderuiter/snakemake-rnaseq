@@ -9,8 +9,9 @@ import numpy as np
 def normalize_counts(counts):
     """Normalizes expression counts using DESeq's median-of-ratios approach."""
 
-    size_factors = estimate_size_factors(counts)
-    return counts / size_factors
+    with np.errstate(divide="ignore"):
+        size_factors = estimate_size_factors(counts)
+        return counts / size_factors
 
 
 def estimate_size_factors(counts):
@@ -36,15 +37,15 @@ def estimate_size_factors(counts):
 
 def feature_counts_extra(wildcards):
     extra = config["feature_counts"]["extra"]
-    if paired:
+    if is_paired:
         extra += " -p"
     return extra
 
 
 rule feature_counts:
     input:
-        bam="bam/merged/{sample}.bam",
-        bai="bam/merged/{sample}.bam.bai",
+        bam="bam/final/{sample}.bam",
+        bai="bam/final/{sample}.bam.bai",
     output:
         counts="counts/per_sample/{sample}.txt",
         summary="qc/feature_counts/{sample}.txt"
@@ -80,7 +81,7 @@ rule normalize_counts:
     input:
         "counts/merged/counts.txt"
     output:
-        "counts/merged/counts.norm_log2.txt"
+        "counts/merged/counts.log2.txt"
     run:
         counts = pd.read_csv(input[0], sep="\t", index_col=list(range(6)))
         norm_counts = np.log2(normalize_counts(counts) + 1)

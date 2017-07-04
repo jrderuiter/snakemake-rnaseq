@@ -14,7 +14,7 @@ rule star_graft:
         "logs/star/{sample}.{lane}.log"
     params:
         index=config["star"]["index"],
-        extra=config["star"]["extra"]
+        extra=config["star"]["extra"] + " --outSAMattributes NH HI AS nM NM"
     resources:
         memory=30
     threads:
@@ -32,7 +32,7 @@ rule star_host:
         "logs/star/{sample}.{lane}.log"
     params:
         index=config["star"]["index_host"],
-        extra=config["star"]["extra"]
+        extra=config["star"]["extra"] + " --outSAMattributes NH HI AS nM NM"
     resources:
         memory=30
     threads:

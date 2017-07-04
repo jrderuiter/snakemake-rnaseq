@@ -19,10 +19,10 @@ input:
 
 
 ################################################################################
-# Step configuration                                                           #
+# Rule configuration                                                           #
 ################################################################################
 
-#### General/shared steps ####
+#### General/shared rules ####
 
 # Single-end config for cutadapt.
 cutadapt_se:
@@ -40,7 +40,7 @@ cutadapt_pe:
 
 star:
   index: '/path/to/index'
-  # Extra argument, required for PDX processing.
+  # Host genome index, only required for PDX processing.
   index_host: '/path/to/host/index'
   extra: ''
   threads: 10
@@ -64,7 +64,7 @@ multiqc:
 fastqc:
   extra: ''
 
-#### PDX-specific steps ####
+#### PDX-specific rules ####
 
 disambiguate:
   extra: ''

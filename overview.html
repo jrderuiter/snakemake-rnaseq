@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Snakemake-rnaseq &mdash; snakemake-rnaseq 0.1.0 documentation</title>
+  <title>Overview &mdash; snakemake-rnaseq 0.1.0 documentation</title>
   
 
   
@@ -37,8 +37,9 @@
         <link rel="index" title="Index"
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="snakemake-rnaseq 0.1.0 documentation" href="#"/>
-        <link rel="next" title="Overview" href="overview.html"/> 
+    <link rel="top" title="snakemake-rnaseq 0.1.0 documentation" href="index.html"/>
+        <link rel="next" title="Installation" href="installation.html"/>
+        <link rel="prev" title="Snakemake-rnaseq" href="index.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -57,7 +58,7 @@
           
 
           
-            <a href="#" class="icon icon-home"> snakemake-rnaseq
+            <a href="index.html" class="icon icon-home"> snakemake-rnaseq
           
 
           
@@ -91,8 +92,12 @@
               
             
             
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#standard-workflow">Standard workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pdx-workflow">PDX workflow</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
@@ -113,7 +118,7 @@
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="#">snakemake-rnaseq</a>
+          <a href="index.html">snakemake-rnaseq</a>
         
       </nav>
 
@@ -141,15 +146,15 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="#">Docs</a> &raquo;</li>
+      <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Snakemake-rnaseq</li>
+      <li>Overview</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/overview.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -162,19 +167,47 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="snakemake-rnaseq">
-<h1>Snakemake-rnaseq<a class="headerlink" href="#snakemake-rnaseq" title="Permalink to this headline">¶</a></h1>
-<p><a class="reference external" href="https://snakemake.bitbucket.io"><img alt="Snakemake" src="https://img.shields.io/badge/snakemake-≥3.13.3-brightgreen.svg" /></a> <a class="reference external" href="https://app.wercker.com/project/byKey/9c3bfb4aa4dbffc027b7a0fcfc00cc57"><img alt="Wercker" src="https://app.wercker.com/status/9c3bfb4aa4dbffc027b7a0fcfc00cc57/s/develop" /></a></p>
-<p>This is a Snakemake workflow for generating gene expression counts from
-RNA-sequencing data using STAR and featureCounts (from the subread package).
-The workflow is designed to handle both single-end and paired-end sequencing
-data, as well as sequencing data from multiple lanes. Processing of
-patient-derived xenograft (PDX) samples is also supported, by using
-disambiguate to separate graft/host sequence reads.</p>
-<p>If you use this workflow in a paper, don’t forget to give credits
-to the authors by citing the URL of this repository and, if available, its
-DOI (see above).</p>
-<div class="toctree-wrapper compound">
+  <div class="section" id="overview">
+<h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
+<p>The workflow can be run in two modes: the ‘standard’ workflow (for normal
+sequencing) data and a ‘PDX’ workflow, which handles host/graft read separation
+for patient-derived xenograft samples.</p>
+<div class="section" id="standard-workflow">
+<h2>Standard workflow<a class="headerlink" href="#standard-workflow" title="Permalink to this headline">¶</a></h2>
+<p>The standard (non-PDX) workflow essentially performs the following steps:</p>
+<ul class="simple">
+<li>Cutadapt is used to trim the input reads for adapters and/or poor-quality
+base calls.</li>
+<li>The trimmed reads are aligned to the reference genome using STAR.</li>
+<li>The resulting alignments are sorted and indexed using sambamba.</li>
+<li>featureCounts is used to generate gene expression counts.</li>
+<li>The (per sample) counts are merged into a single count file.</li>
+<li>The merged counts are normalized for differences in sequencing depth (using
+DESeq’s median-of-ratios approach) and log-transformed.</li>
+</ul>
+<p>QC statistics are generated using fastqc and samtools stats. The stats are
+summarized into a single report using multiqc.</p>
+<p>Altogether, this results in the following dependency graph:</p>
+<div class="figure align-center">
+<img alt="_images/dag.svg" src="_images/dag.svg" /></div>
+</div>
+<div class="section" id="pdx-workflow">
+<h2>PDX workflow<a class="headerlink" href="#pdx-workflow" title="Permalink to this headline">¶</a></h2>
+<p>The PDX workflow is a slightly modified version of the standard workflow, which
+aligns the reads to two reference genome (the host and graft reference genomes)
+and uses <a class="reference external" href="https://github.com/AstraZeneca-NGS/disambiguate">disambiguate</a> to remove sequences originating from the host organism.
+For typical PDX samples, this means removing the mouse (host) reads, leaving
+the human (graft) reads for further analysis.</p>
+<p>The PDX workflow adds the following additional steps:</p>
+<ul class="simple">
+<li>The reads are aligned to two references in <code class="docutils literal"><span class="pre">star_host</span></code> and <code class="docutils literal"><span class="pre">star_graft</span></code>.</li>
+<li>The resulting alignments are sorted by queryname using samtools and
+subsequently ‘disambiguated’ using the disamgibuate tool from AstraZeneca.</li>
+<li>The disambiguated alignments are sorted by coordinate using sambamba.</li>
+</ul>
+<p>This results in the following dependency graph:</p>
+<div class="figure align-center">
+<img alt="_images/dag_pdx.svg" src="_images/dag_pdx.svg" /></div>
 </div>
 </div>
 
@@ -188,8 +221,10 @@ DOI (see above).</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="overview.html" class="btn btn-neutral float-right" title="Overview" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="installation.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
+      
+        <a href="index.html" class="btn btn-neutral" title="Snakemake-rnaseq" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

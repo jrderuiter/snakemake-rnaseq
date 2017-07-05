@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Snakemake-rnaseq &mdash; snakemake-rnaseq 0.1.0 documentation</title>
+  <title>Installation &mdash; snakemake-rnaseq 0.1.0 documentation</title>
   
 
   
@@ -37,8 +37,9 @@
         <link rel="index" title="Index"
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="snakemake-rnaseq 0.1.0 documentation" href="#"/>
-        <link rel="next" title="Overview" href="overview.html"/> 
+    <link rel="top" title="snakemake-rnaseq 0.1.0 documentation" href="index.html"/>
+        <link rel="next" title="Configuration" href="configuration.html"/>
+        <link rel="prev" title="Overview" href="overview.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -57,7 +58,7 @@
           
 
           
-            <a href="#" class="icon icon-home"> snakemake-rnaseq
+            <a href="index.html" class="icon icon-home"> snakemake-rnaseq
           
 
           
@@ -91,9 +92,9 @@
               
             
             
-              <ul>
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
@@ -113,7 +114,7 @@
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="#">snakemake-rnaseq</a>
+          <a href="index.html">snakemake-rnaseq</a>
         
       </nav>
 
@@ -141,15 +142,15 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="#">Docs</a> &raquo;</li>
+      <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Snakemake-rnaseq</li>
+      <li>Installation</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/installation.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -162,20 +163,22 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="snakemake-rnaseq">
-<h1>Snakemake-rnaseq<a class="headerlink" href="#snakemake-rnaseq" title="Permalink to this headline">¶</a></h1>
-<p><a class="reference external" href="https://snakemake.bitbucket.io"><img alt="Snakemake" src="https://img.shields.io/badge/snakemake-≥3.13.3-brightgreen.svg" /></a> <a class="reference external" href="https://app.wercker.com/project/byKey/9c3bfb4aa4dbffc027b7a0fcfc00cc57"><img alt="Wercker" src="https://app.wercker.com/status/9c3bfb4aa4dbffc027b7a0fcfc00cc57/s/develop" /></a></p>
-<p>This is a Snakemake workflow for generating gene expression counts from
-RNA-sequencing data using STAR and featureCounts (from the subread package).
-The workflow is designed to handle both single-end and paired-end sequencing
-data, as well as sequencing data from multiple lanes. Processing of
-patient-derived xenograft (PDX) samples is also supported, by using
-disambiguate to separate graft/host sequence reads.</p>
-<p>If you use this workflow in a paper, don’t forget to give credits
-to the authors by citing the URL of this repository and, if available, its
-DOI (see above).</p>
-<div class="toctree-wrapper compound">
+  <div class="section" id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<p>If you simply want to use this workflow, download and extract the
+<a class="reference external" href="https://github.com/jrderuiter/snakemake-rnaseq/releases">latest release</a>. If you intend to modify and further develop this
+workflow, fork this repository. Please consider providing any generally
+applicable modifications via a pull request.</p>
+<p>To be able to run the workflow, you at least need to have snakemake and pandas
+installed. A basic (conda) environment containing these dependencies can be
+setup as follows:</p>
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">create</span> <span class="o">-</span><span class="n">n</span> <span class="n">snakemake</span> <span class="n">snakemake</span> <span class="n">pandas</span>
+</pre></div>
 </div>
+<p>The various external tools (e.g. bwa, samtools) are managed automatically by
+snakemake if the <code class="docutils literal"><span class="pre">--use-conda</span></code> flag is used. Otherwise, these external tools
+also need to be installed into the environment or must be available
+in <code class="docutils literal"><span class="pre">$PATH</span></code>.</p>
 </div>
 
 
@@ -188,8 +191,10 @@ DOI (see above).</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="overview.html" class="btn btn-neutral float-right" title="Overview" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="configuration.html" class="btn btn-neutral float-right" title="Configuration" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
+      
+        <a href="overview.html" class="btn btn-neutral" title="Overview" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

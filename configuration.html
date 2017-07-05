@@ -1,0 +1,389 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Configuration &mdash; snakemake-rnaseq 0.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="snakemake-rnaseq 0.1.0 documentation" href="index.html"/>
+        <link rel="next" title="Usage" href="usage.html"/>
+        <link rel="prev" title="Installation" href="installation.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> snakemake-rnaseq
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Configuration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#sample-definition">Sample definition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pipeline-configuration">Pipeline configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#input-options">Input options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#rule-options">Rule options</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#standard-vs-pdx-mode">Standard vs PDX mode</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">snakemake-rnaseq</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Configuration</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/configuration.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="configuration">
+<h1>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h1>
+<p>The pipeline is configured using two config files, <code class="docutils literal"><span class="pre">samples.tsv</span></code> and
+<code class="docutils literal"><span class="pre">config.yaml</span></code>. The <code class="docutils literal"><span class="pre">samples.tsv</span></code> file defines the input samples,
+together with the paths to the respective source files. The <code class="docutils literal"><span class="pre">config.yaml</span></code>
+file provides detailed configuration options for the different
+steps of the pipeline.</p>
+<div class="section" id="sample-definition">
+<h2>Sample definition<a class="headerlink" href="#sample-definition" title="Permalink to this headline">¶</a></h2>
+<p>The sample definition file is a tab-separated file that lists the samples
+that are to be processed by the pipeline. Each row represents a single set of
+(paired-end) fastq files for a given sample on a given lane. As such, samples
+that have been sequenced on multiple lanes with typically span multiple rows
+that share the same sample ID.</p>
+<p>For example, a single sample sequenced over two lanes would be described
+as follows:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sample</span>	<span class="n">lane</span>	<span class="n">fastq1</span>	<span class="n">fastq2</span>
+<span class="n">S1</span>	<span class="n">L001</span>	<span class="n">S1</span><span class="o">.</span><span class="n">L001</span><span class="o">.</span><span class="n">R1</span><span class="o">.</span><span class="n">fastq</span><span class="o">.</span><span class="n">gz</span>	<span class="n">S1</span><span class="o">.</span><span class="n">L001</span><span class="o">.</span><span class="n">R2</span><span class="o">.</span><span class="n">fastq</span><span class="o">.</span><span class="n">gz</span>
+<span class="n">S1</span>	<span class="n">L002</span>	<span class="n">S1</span><span class="o">.</span><span class="n">L002</span><span class="o">.</span><span class="n">R1</span><span class="o">.</span><span class="n">fastq</span><span class="o">.</span><span class="n">gz</span>	<span class="n">S1</span><span class="o">.</span><span class="n">L001</span><span class="o">.</span><span class="n">R2</span><span class="o">.</span><span class="n">fastq</span><span class="o">.</span><span class="n">gz</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal"><span class="pre">fastq1</span></code> and <code class="docutils literal"><span class="pre">fastq2</span></code> columns should contain paths to the input files
+of each of the pairs, which are expected to be fastq files. These paths can
+either be provided as local relative/absolute paths, or as remote http/ftp urls.
+Note that relative file paths are taken relative to the input directory
+defined in the configuration file (see below for more details), if specified.
+For single-end data, the <code class="docutils literal"><span class="pre">fastq2</span></code> column should be omitted.</p>
+<p>The <code class="docutils literal"><span class="pre">lane</span></code> column is used to distinguish sequencing data from the same sample
+that has been sequenced in different lanes. This column can be filled with
+dummy values (i.e. L999) if lane information is not available and samples
+were sequenced on a single lane.</p>
+</div>
+<div class="section" id="pipeline-configuration">
+<h2>Pipeline configuration<a class="headerlink" href="#pipeline-configuration" title="Permalink to this headline">¶</a></h2>
+<p>The individual steps of the pipeline are configured using the <code class="docutils literal"><span class="pre">config.yaml</span></code>
+file. This config file contains two different sections, which define
+configurations for the inputs and for each specific rule, respectively.</p>
+<div class="section" id="input-options">
+<h3>Input options<a class="headerlink" href="#input-options" title="Permalink to this headline">¶</a></h3>
+<p>The input section defines several options regarding the handling of the
+input files:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1">################################################################################</span>
+<span class="c1"># Input configuration                                                          #</span>
+<span class="c1">################################################################################</span>
+
+<span class="nb">input</span><span class="p">:</span>
+  <span class="c1"># Optional: input directory to use for fastq files (for local input files).</span>
+  <span class="nb">dir</span><span class="p">:</span> <span class="s1">&#39;input&#39;</span>
+
+  <span class="c1"># Optional: configuration to use for remote (FTP) input files.</span>
+  <span class="c1"># ftp:</span>
+  <span class="c1">#   username: &#39;user&#39;</span>
+  <span class="c1">#   password: &#39;pass&#39;</span>
+</pre></div>
+</div>
+<p>Here, <code class="docutils literal"><span class="pre">dir</span></code> is an optional value that defines the directory containing
+the input files. If given, file paths provided in <code class="docutils literal"><span class="pre">samples.tsv</span></code> are
+sought relative to this directory. Its value is ignored if http/ftp urls
+are used for the inputs.</p>
+<p>The <code class="docutils literal"><span class="pre">ftp</span></code> section defines the username/password to use when downloading
+samples over an ftp connection. These values can be omitted when downloading
+files from an anonymous ftp server.</p>
+</div>
+<div class="section" id="rule-options">
+<h3>Rule options<a class="headerlink" href="#rule-options" title="Permalink to this headline">¶</a></h3>
+<p>The rule section provides detailed configuration options for the different
+rule of the workflow. In general, each rule has a set of configurable options
+under the same name as the step itself. The options themselves are specific for
+each step and the corresponding tool, but each step typically has an <code class="docutils literal"><span class="pre">extra</span></code>
+option, which allows you to pass arbitrary arguments to the underlying tool.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1">################################################################################</span>
+<span class="c1"># Rule configuration                                                           #</span>
+<span class="c1">################################################################################</span>
+
+<span class="c1">#### General/shared rules ####</span>
+
+<span class="c1"># Single-end config for cutadapt.</span>
+<span class="n">cutadapt_se</span><span class="p">:</span>
+  <span class="n">extra</span><span class="p">:</span> <span class="o">&gt;-</span>
+    <span class="o">-</span><span class="n">a</span> <span class="n">AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC</span>
+    <span class="o">--</span><span class="n">minimum</span><span class="o">-</span><span class="n">length</span> <span class="mi">20</span>
+
+<span class="c1"># Paired-end config for cutadapt.</span>
+<span class="n">cutadapt_pe</span><span class="p">:</span>
+  <span class="n">extra</span><span class="p">:</span> <span class="o">&gt;-</span>
+    <span class="o">-</span><span class="n">a</span> <span class="n">AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC</span>
+    <span class="o">-</span><span class="n">A</span> <span class="n">AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGTAGATCTCGGTGGTCGCCGTATCATT</span>
+    <span class="o">-</span><span class="n">q</span> <span class="mi">20</span>
+    <span class="o">--</span><span class="n">minimum</span><span class="o">-</span><span class="n">length</span> <span class="mi">20</span>
+
+<span class="n">star</span><span class="p">:</span>
+  <span class="n">index</span><span class="p">:</span> <span class="s1">&#39;/path/to/index&#39;</span>
+  <span class="c1"># Host genome index, only required for PDX processing.</span>
+  <span class="c1"># index_host: &#39;/path/to/host/index&#39;</span>
+  <span class="n">readgroup</span><span class="p">:</span> <span class="o">&gt;-</span>
+    <span class="n">ID</span><span class="p">:{</span><span class="n">sample</span><span class="p">}</span><span class="o">.</span><span class="p">{</span><span class="n">lane</span><span class="p">}</span> <span class="n">SM</span><span class="p">:{</span><span class="n">sample</span><span class="p">}</span> <span class="n">LB</span><span class="p">:{</span><span class="n">sample</span><span class="p">}</span>
+    <span class="n">PU</span><span class="p">:{</span><span class="n">sample</span><span class="p">}</span><span class="o">.</span><span class="p">{</span><span class="n">lane</span><span class="p">}</span> <span class="n">PL</span><span class="p">:</span><span class="n">ILLUMINA</span> <span class="n">CN</span><span class="p">:</span><span class="n">CENTRE</span>
+  <span class="n">extra</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
+  <span class="n">threads</span><span class="p">:</span> <span class="mi">10</span>
+
+<span class="n">sambamba_sort</span><span class="p">:</span>
+  <span class="n">extra</span><span class="p">:</span> <span class="s1">&#39;&#39;</span>
+  <span class="n">threads</span><span class="p">:</span> <span class="mi">10</span>
+
+<span class="n">samtools_merge</span><span class="p">:</span>
+  <span class="n">extra</span><span class="p">:</span> <span class="s1">&#39;&#39;</span>
+  <span class="n">threads</span><span class="p">:</span> <span class="mi">10</span>
+
+<span class="n">feature_counts</span><span class="p">:</span>
+  <span class="n">annotation</span><span class="p">:</span> <span class="s1">&#39;/path/to/gtf&#39;</span>
+  <span class="n">extra</span><span class="p">:</span> <span class="s1">&#39;&#39;</span>
+  <span class="n">threads</span><span class="p">:</span> <span class="mi">5</span>
+
+<span class="n">multiqc</span><span class="p">:</span>
+  <span class="n">extra</span><span class="p">:</span> <span class="s1">&#39;&#39;</span>
+
+<span class="n">fastqc</span><span class="p">:</span>
+  <span class="n">extra</span><span class="p">:</span> <span class="s1">&#39;&#39;</span>
+
+<span class="c1">#### PDX-specific rules ####</span>
+
+<span class="n">disambiguate</span><span class="p">:</span>
+  <span class="n">extra</span><span class="p">:</span> <span class="s1">&#39;&#39;</span>
+
+<span class="n">sambamba_sort</span><span class="p">:</span>
+  <span class="n">extra</span><span class="p">:</span> <span class="s1">&#39;&#39;</span>
+  <span class="n">threads</span><span class="p">:</span> <span class="mi">5</span>
+</pre></div>
+</div>
+<p>Note that this section is divided into two sub-sections: general and
+PDX-specific. The PDX-specific section contains additional options for rules
+that are only used in the PDX workflow (see below)..</p>
+</div>
+</div>
+<div class="section" id="standard-vs-pdx-mode">
+<h2>Standard vs PDX mode<a class="headerlink" href="#standard-vs-pdx-mode" title="Permalink to this headline">¶</a></h2>
+<p>The PDX workflow is triggered if a host genome index is supplied by the
+<code class="docutils literal"><span class="pre">index_host</span></code> option in the configuration for <code class="docutils literal"><span class="pre">star</span></code>. If this option is
+omitted or left empty, the standard workflow is executed.</p>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="usage.html" class="btn btn-neutral float-right" title="Usage" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="installation.html" class="btn btn-neutral" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Julian de Ruiter.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

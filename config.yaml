@@ -35,7 +35,7 @@ cutadapt_pe:
 star:
   index: '/path/to/index'
   # Host genome index, only required for PDX processing.
-  index_host: '/path/to/host/index'
+  # index_host: '/path/to/host/index'
   readgroup: >-
     ID:{sample}.{lane} SM:{sample} LB:{sample}
     PU:{sample}.{lane} PL:ILLUMINA CN:CENTRE

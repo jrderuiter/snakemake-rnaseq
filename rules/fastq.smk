@@ -2,7 +2,7 @@ if is_paired:
     rule cutadapt:
         input:
             ["fastq/raw/{sample}.{lane}.R1.fastq.gz",
-            "fastq/raw/{sample}.{lane}.R2.fastq.gz"]
+             "fastq/raw/{sample}.{lane}.R2.fastq.gz"]
         output:
             fastq1=temp("fastq/trimmed/{sample}.{lane}.R1.fastq.gz"),
             fastq2=temp("fastq/trimmed/{sample}.{lane}.R2.fastq.gz"),

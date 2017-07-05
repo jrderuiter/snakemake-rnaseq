@@ -1,18 +1,12 @@
 ################################################################################
-# General configuration                                                        #
-################################################################################
-
-general:
-  paired: True
-  pdx: False
-
-
-################################################################################
 # Input configuration                                                          #
 ################################################################################
 
 input:
+  # Optional: input directory to use for fastq files (for local input files).
   dir: 'input'
+
+  # Optional: configuration to use for remote (FTP) input files.
   # ftp:
   #   username: 'user'
   #   password: 'pass'
@@ -42,7 +36,10 @@ star:
   index: '/path/to/index'
   # Host genome index, only required for PDX processing.
   index_host: '/path/to/host/index'
-  extra: ''
+  readgroup: >-
+    ID:{sample}.{lane} SM:{sample} LB:{sample}
+    PU:{sample}.{lane} PL:ILLUMINA CN:CENTRE
+  extra: ""
   threads: 10
 
 sambamba_sort:

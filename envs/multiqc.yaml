@@ -1,0 +1,7 @@
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  - pip
+  - pip:
+    - git+https://github.com/ewels/MultiQC.git

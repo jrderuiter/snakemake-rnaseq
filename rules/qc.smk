@@ -1,3 +1,6 @@
+from os import path
+
+
 def multiqc_inputs(wildcards):
     """Returns inputs for multiqc, which vary depending on whether pipeline
        is processing normal or PDX data and whether the data is paired."""
@@ -26,6 +29,8 @@ rule multiqc:
         config["multiqc"]["extra"]
     log:
         "logs/multiqc.log"
+    conda:
+        path.join(workflow.basedir, "envs/multiqc.yaml")
     wrapper:
         "0.17.0/bio/multiqc"
 

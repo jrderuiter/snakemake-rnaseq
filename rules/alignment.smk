@@ -65,15 +65,17 @@ if is_pdx:
             "0.17.0/bio/star/align"
 
 
-    rule samtools_sort_qname:
+    rule sambamba_sort_qname:
         input:
             "bam/star/{sample}.{lane}.{organism}/Aligned.out.bam"
         output:
             temp("bam/star/{sample}.{lane}.{organism}/Aligned.sorted.bam")
         params:
-            config["samtools_merge"]["extra"] + " -n"
+            config["sambamba_sort"]["extra"] + " --natural-sort"
+        threads:
+            config["sambamba_sort"]["threads"]
         wrapper:
-            "0.17.0/bio/samtools/sort"
+            "0.17.0/bio/sambamba/sort"
 
 
     def merge_inputs(wildcards):
@@ -117,7 +119,7 @@ if is_pdx:
             "0.17.0/bio/ngs-disambiguate"
 
 
-    rule sambamba_sort:
+    rule sambamba_sort_coord:
         input:
             "bam/disambiguate/{sample}.graft.bam"
         output:

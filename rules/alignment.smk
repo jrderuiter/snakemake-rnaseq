@@ -151,6 +151,8 @@ else:
         params:
             index=config["star"]["index"],
             extra=star_extra(config["star"])
+        resources:
+            memory=30
         threads:
             config["star"]["threads"]
         wrapper:

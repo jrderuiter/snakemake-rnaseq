@@ -64,24 +64,26 @@ rule merge_counts:
     input:
         expand("counts/per_sample/{sample}.txt", sample=get_samples())
     output:
-        "counts/merged/counts.txt"
+        "counts/merged.txt"
     run:
-        def merge_counts(file_paths):
-            frames = (pd.read_csv(fp, sep="\t", skiprows=1,
-                                  index_col=list(range(6)))
-                      for fp in file_paths)
+        # Merge count files.
+        frames = (pd.read_csv(fp, sep="\t", skiprows=1,
+                        index_col=list(range(6)))
+            for fp in input)
+        merged = pd.concat(frames, axis=1)
 
-            return pd.concat(frames, axis=1)
+        # Extract sample names.
+        merged = merged.rename(
+            columns=lambda c: path.splitext(path.basename(c))[0])
 
-        merged = merge_counts(input)
         merged.to_csv(output[0], sep="\t", index=True)
 
 
 rule normalize_counts:
     input:
-        "counts/merged/counts.txt"
+        "counts/merged.txt"
     output:
-        "counts/merged/counts.log2.txt"
+        "counts/merged.log2.txt"
     run:
         counts = pd.read_csv(input[0], sep="\t", index_col=list(range(6)))
         norm_counts = np.log2(normalize_counts(counts) + 1)

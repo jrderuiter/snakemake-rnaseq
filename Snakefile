@@ -38,7 +38,7 @@ def get_sample_lanes(sample):
 
 rule all:
     input:
-        "counts/merged/counts.log2.txt",
+        "counts/merged.log2.txt",
         "qc/multiqc_report.html"
 
 include: "rules/input.smk"

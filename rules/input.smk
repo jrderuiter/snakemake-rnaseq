@@ -4,8 +4,10 @@ from snakemake.remote.HTTP import RemoteProvider as HTTPRemoteProvider
 from snakemake.remote.FTP import RemoteProvider as FTPRemoteProvider
 
 
+input_config = config["input"] or {}
+
 HTTP = HTTPRemoteProvider()
-FTP = FTPRemoteProvider(**config["input"].get("ftp", {}))
+FTP = FTPRemoteProvider(**input_config.get("ftp", {}))
 
 
 def input_path(wildcards):
@@ -20,24 +22,15 @@ def input_path(wildcards):
     fastq = "fastq1" if wildcards.pair == "R1" else "fastq2"
     file_path = samples.set_index(["sample", "lane"]).loc[key, fastq]
 
-    # Prepend local directory if given.
-    input_dir = config["input"].get("dir", None)
-    if input_dir is not None:
-        file_path = path.join(input_dir, file_path)
-
-    # Wrap remote paths.
-    file_path = _wrap_if_remote(file_path)
-
-    return file_path
-
-
-def _wrap_if_remote(file_path):
-    """Wraps remote file paths with remote wrapper."""
-
+    # Wrap remote HTTP/FTP path.
     if file_path.startswith("http"):
         file_path = HTTP.remote(file_path)
     elif file_path.startswith("ftp"):
+        # Wrap remote HTTP path.
         file_path = FTP.remote(file_path)
+    elif "dir" in input_config:
+        # Prepend local dir path for local files (if given).
+        file_path = path.join(input_config["dir"], file_path)
 
     return file_path
 

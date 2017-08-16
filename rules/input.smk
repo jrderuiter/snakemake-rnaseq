@@ -4,10 +4,8 @@ from snakemake.remote.HTTP import RemoteProvider as HTTPRemoteProvider
 from snakemake.remote.FTP import RemoteProvider as FTPRemoteProvider
 
 
-input_config = config["input"] or {}
-
 HTTP = HTTPRemoteProvider()
-FTP = FTPRemoteProvider(**input_config.get("ftp", {}))
+FTP = FTPRemoteProvider(**config["input"].get("ftp", {}))
 
 
 def input_path(wildcards):
@@ -17,20 +15,29 @@ def input_path(wildcards):
         raise ValueError("Unexpected value for pair wildcard ({})"
                          .format(wildcards.pair))
 
-    # Lookup file path.
-    key = (wildcards.sample, wildcards.lane)
-    fastq = "fastq1" if wildcards.pair == "R1" else "fastq2"
-    file_path = samples.set_index(["sample", "lane"]).loc[key, fastq]
+    # Lookup sample for given lane/sample ids.
+    subset = samples.query('sample == {!r} and lane == {!r}'
+                           .format(wildcards.sample, wildcards.lane))
 
-    # Wrap remote HTTP/FTP path.
-    if file_path.startswith("http"):
-        file_path = HTTP.remote(file_path)
-    elif file_path.startswith("ftp"):
-        # Wrap remote HTTP path.
-        file_path = FTP.remote(file_path)
-    elif "dir" in input_config:
-        # Prepend local dir path for local files (if given).
-        file_path = path.join(input_config["dir"], file_path)
+    if len(subset) > 1:
+        raise ValueError('Multiple samples found for {}/{}'
+                         .format(wildcards.sample, wildcards.lane))
+    elif len(subset) == 0:
+        raise ValueError('No samples found for {}/{}'
+                         .format(wildcards.sample, wildcards.lane))
+
+    # Extract file_path.
+    fastq_col = "fastq1" if wildcards.pair == "R1" else "fastq2"
+    file_path = subset.iloc[0][fastq_col]
+
+    # Prepend local directory if given.
+    input_dir = config["input"].get("dir", None)
+
+    if input_dir is not None:
+        file_path = path.join(input_dir, file_path)
+
+    # Wrap remote paths.
+    file_path = _wrap_if_remote(file_path)
 
     return file_path
 

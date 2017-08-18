@@ -8,7 +8,6 @@ configfile: 'config.yaml'
 ################################################################################
 
 samples = pd.read_csv('samples.tsv', sep='\t')
-is_pdx = bool(config["star"].get("index_host", None))
 is_paired = "fastq2" in samples.columns
 
 

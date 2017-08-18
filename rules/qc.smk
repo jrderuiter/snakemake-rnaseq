@@ -14,7 +14,7 @@ def multiqc_inputs(wildcards):
         expand("qc/samtools_stats/{sample}.txt", sample=get_samples())
     ]
 
-    if is_pdx:
+    if config["options"]["pdx"]:
         inputs += [expand("qc/disambiguate/{sample}.txt", sample=get_samples())]
 
     return [input_ for sub_inputs in inputs for input_ in sub_inputs]

@@ -27,7 +27,8 @@ def star_extra(star_config):
     return extra_args
 
 
-if is_pdx:
+if config["options"]["pdx"]:
+
     # PDX alignment rules.
     rule star_graft:
         input:

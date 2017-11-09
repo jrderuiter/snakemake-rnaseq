@@ -44,10 +44,10 @@ def feature_counts_extra(wildcards):
 
 rule feature_counts:
     input:
-        bam="bam/final/{sample}.bam",
-        bai="bam/final/{sample}.bam.bai",
+        bam="star/final/{sample}.bam",
+        bai="star/final/{sample}.bam.bai",
     output:
-        counts="counts/per_sample/{sample}.txt",
+        counts="feature_counts/per_sample/{sample}.txt",
         summary="qc/feature_counts/{sample}.txt"
     params:
         annotation=config["feature_counts"]["annotation"],
@@ -62,9 +62,9 @@ rule feature_counts:
 
 rule merge_counts:
     input:
-        expand("counts/per_sample/{sample}.txt", sample=get_samples())
+        expand("feature_counts/per_sample/{sample}.txt", sample=get_samples())
     output:
-        "counts/merged.txt"
+        "feature_counts/merged/counts.txt"
     run:
         # Merge count files.
         frames = (pd.read_csv(fp, sep="\t", skiprows=1,
@@ -81,9 +81,9 @@ rule merge_counts:
 
 rule normalize_counts:
     input:
-        "counts/merged.txt"
+        "feature_counts/merged/counts.txt"
     output:
-        "counts/merged.log2.txt"
+        "feature_counts/merged/normalized_counts.txt"
     run:
         counts = pd.read_csv(input[0], sep="\t", index_col=list(range(6)))
         norm_counts = np.log2(normalize_counts(counts) + 1)

@@ -3,7 +3,7 @@
 ################################################################################
 
 options:
-  pdx: False
+  pdx: True
 
 
 ################################################################################
@@ -43,7 +43,7 @@ cutadapt_pe:
 star:
   index: '/path/to/index'
   # Host genome index, only required for PDX processing.
-  # index_host: '/path/to/host_index'
+  index_host: '/path/to/host_index'
   readgroup: >-
     ID:{sample}.{lane} SM:{sample} LB:{sample}
     PU:{sample}.{lane} PL:ILLUMINA CN:CENTRE
@@ -72,4 +72,14 @@ fastqc:
 #### PDX-specific rules ####
 
 disambiguate:
+  extra: ''
+
+
+vardict:
+  reference: 'input/reference.fa'
+  regions: 'input/regions.bed'
+  extra: ''
+  extra_vcf: '-E -f 0.1'
+
+vardict_merge:
   extra: ''

@@ -37,11 +37,13 @@ def get_sample_lanes(sample):
 
 rule all:
     input:
-        "counts/merged.log2.txt",
-        "qc/multiqc_report.html"
+        "feature_counts/merged/normalized_counts.txt",
+        "qc/multiqc_report.html",
+        "vardict/merged/calls.vcf.gz"
 
 include: "rules/input.smk"
 include: "rules/fastq.smk"
-include: "rules/alignment.smk"
-include: "rules/counts.smk"
+include: "rules/star.smk"
+include: "rules/feature_counts.smk"
+include: "rules/vardict.smk"
 include: "rules/qc.smk"

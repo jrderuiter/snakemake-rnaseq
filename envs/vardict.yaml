@@ -3,6 +3,4 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - pip
-  - pip:
-    - git+https://github.com/ewels/MultiQC.git
+  - vardict ==2017.09.24

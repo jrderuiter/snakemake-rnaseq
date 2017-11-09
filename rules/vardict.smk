@@ -11,6 +11,8 @@ rule vardict:
         options=config["vardict"]["extra"],
         options_vcf=config["vardict"]["extra_vcf"],
         sample="{sample}"
+    conda:
+        path.join(workflow.basedir, "envs/vardict.yaml")
     shell:
         "vardict -G {input.reference} -b {input.bam} -N {params.sample}"
         " {params.options} {input.regions}"
@@ -25,6 +27,8 @@ rule vardict_tabix:
     output:
         "vardict/per_sample/{sample}.vcf.gz",
         "vardict/per_sample/{sample}.vcf.gz.tbi"
+    conda:
+        path.join(workflow.basedir, "envs/tabix.yaml")
     shell:
         "bgzip -c {input[0]} > {output[0]} && tabix -p vcf {output[0]}"
 
@@ -36,6 +40,8 @@ rule vardict_merge:
         "vardict/merged/calls.vcf.gz"
     params:
         options=config["vardict_merge"]["extra"]
+    conda:
+        path.join(workflow.basedir, "envs/bcftools.yaml")
     shell:
         "bcftools merge -z {params.options} {input} > {output[0]}"
         " && tabix -p vcf {output[0]}"

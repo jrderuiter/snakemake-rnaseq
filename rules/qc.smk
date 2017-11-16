@@ -32,7 +32,7 @@ rule multiqc:
     conda:
         path.join(workflow.basedir, "envs/multiqc.yaml")
     wrapper:
-        "0.17.0/bio/multiqc"
+        "0.17.4/bio/multiqc"
 
 
 rule fastqc:
@@ -44,7 +44,7 @@ rule fastqc:
     params:
         config["fastqc"]["extra"]
     wrapper:
-        "0.17.0/bio/fastqc"
+        "0.17.4/bio/fastqc"
 
 
 rule samtools_stats:
@@ -53,4 +53,4 @@ rule samtools_stats:
     output:
         "qc/samtools_stats/{sample}.txt"
     wrapper:
-        "0.17.0/bio/samtools/stats"
+        "0.17.4/bio/samtools/stats"

@@ -12,7 +12,7 @@ if is_paired:
         log:
             "logs/cutadapt/{sample}.{lane}.log"
         wrapper:
-            "0.17.0/bio/cutadapt/pe"
+            "0.17.4/bio/cutadapt/pe"
 else:
     rule cutadapt:
         input:
@@ -25,4 +25,4 @@ else:
         log:
             "logs/cutadapt/{sample}.{lane}.log"
         wrapper:
-            "0.17.0/bio/cutadapt/se"
+            "0.17.4/bio/cutadapt/se"

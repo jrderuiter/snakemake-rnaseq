@@ -45,7 +45,7 @@ if config["options"]["pdx"]:
         threads:
             config["star"]["threads"]
         wrapper:
-            "0.17.0/bio/star/align"
+            "0.17.4/bio/star/align"
 
 
     rule star_host:
@@ -63,7 +63,7 @@ if config["options"]["pdx"]:
         threads:
             config["star"]["threads"]
         wrapper:
-            "0.17.0/bio/star/align"
+            "0.17.4/bio/star/align"
 
 
     rule sambamba_sort_qname:
@@ -76,7 +76,7 @@ if config["options"]["pdx"]:
         threads:
             config["sambamba_sort"]["threads"]
         wrapper:
-            "0.17.0/bio/sambamba/sort"
+            "0.17.4/bio/sambamba/sort"
 
 
     def merge_inputs(wildcards):
@@ -99,7 +99,7 @@ if config["options"]["pdx"]:
         threads:
             config["samtools_merge"]["threads"]
         wrapper:
-            "0.17.0/bio/samtools/merge"
+            "0.17.4/bio/samtools/merge"
 
 
     rule disambiguate:
@@ -117,7 +117,7 @@ if config["options"]["pdx"]:
             prefix="{sample}",
             extra=config["disambiguate"]["extra"]
         wrapper:
-            "0.17.0/bio/ngs-disambiguate"
+            "0.17.4/bio/ngs-disambiguate"
 
 
     rule sambamba_sort_coord:
@@ -130,7 +130,7 @@ if config["options"]["pdx"]:
         threads:
             config["sambamba_sort"]["threads"]
         wrapper:
-            "0.17.0/bio/sambamba/sort"
+            "0.17.4/bio/sambamba/sort"
 
 
     rule samtools_index:
@@ -139,7 +139,7 @@ if config["options"]["pdx"]:
         output:
             "bam/final/{sample}.bam.bai"
         wrapper:
-            "0.17.0/bio/samtools/index"
+            "0.17.4/bio/samtools/index"
 else:
     # 'Standard' alignment rules.
     rule star:
@@ -157,7 +157,7 @@ else:
         threads:
             config["star"]["threads"]
         wrapper:
-            "0.17.0/bio/star/align"
+            "0.17.4/bio/star/align"
 
 
     rule sambamba_sort:
@@ -170,7 +170,7 @@ else:
         threads:
             config["sambamba_sort"]["threads"]
         wrapper:
-            "0.17.0/bio/sambamba/sort"
+            "0.17.4/bio/sambamba/sort"
 
 
     def merge_inputs(wildcards):
@@ -193,7 +193,7 @@ else:
         threads:
             config["samtools_merge"]["threads"]
         wrapper:
-            "0.17.0/bio/samtools/merge"
+            "0.17.4/bio/samtools/merge"
 
 
     rule samtools_index:
@@ -202,4 +202,4 @@ else:
         output:
             "bam/final/{sample}.bam.bai"
         wrapper:
-            "0.17.0/bio/samtools/index"
+            "0.17.4/bio/samtools/index"

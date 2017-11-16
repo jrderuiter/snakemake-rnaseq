@@ -34,9 +34,9 @@ if config["options"]["pdx"]:
         input:
             sample=star_inputs
         output:
-            temp("bam/star/{sample}.{lane}.graft/Aligned.out.bam")
+            temp("star/aligned/{sample}.{lane}.graft/Aligned.out.bam")
         log:
-            "logs/star/{sample}.{lane}.log"
+            "logs/star/alignment/{sample}.{lane}.graft.log"
         params:
             index=config["star"]["index"],
             extra=star_extra(config["star"])
@@ -52,9 +52,9 @@ if config["options"]["pdx"]:
         input:
             sample=star_inputs
         output:
-            temp("bam/star/{sample}.{lane}.host/Aligned.out.bam")
+            temp("star/aligned/{sample}.{lane}.host/Aligned.out.bam")
         log:
-            "logs/star/{sample}.{lane}.log"
+            "logs/star/alignment/{sample}.{lane}.host.log"
         params:
             index=config["star"]["index_host"],
             extra=star_extra(config["star"])
@@ -68,9 +68,9 @@ if config["options"]["pdx"]:
 
     rule sambamba_sort_qname:
         input:
-            "bam/star/{sample}.{lane}.{organism}/Aligned.out.bam"
+            "star/aligned/{sample}.{lane}.{organism}/Aligned.out.bam"
         output:
-            temp("bam/star/{sample}.{lane}.{organism}/Aligned.sorted.bam")
+            temp("star/sorted/{sample}.{lane}.{organism}.bam")
         params:
             config["sambamba_sort"]["extra"] + " --natural-sort"
         threads:
@@ -82,8 +82,8 @@ if config["options"]["pdx"]:
     def merge_inputs(wildcards):
         lanes = get_sample_lanes(wildcards.sample)
 
-        file_paths = ["bam/star/{}.{}.{}/Aligned.sorted.bam"
-                    .format(wildcards.sample, lane, wildcards.organism)
+        file_paths = ["star/sorted/{}.{}.{}.bam".format(
+                        wildcards.sample, lane, wildcards.organism)
                     for lane in lanes]
 
         return file_paths
@@ -93,7 +93,7 @@ if config["options"]["pdx"]:
         input:
             merge_inputs
         output:
-            temp("bam/merged/{sample}.{organism}.bam")
+            temp("star/merged/{sample}.{organism}.bam")
         params:
             config["samtools_merge"]["extra"] + " -n"
         threads:
@@ -104,14 +104,14 @@ if config["options"]["pdx"]:
 
     rule disambiguate:
         input:
-            a="bam/merged/{sample}.graft.bam",
-            b="bam/merged/{sample}.host.bam"
+            a="star/merged/{sample}.graft.bam",
+            b="star/merged/{sample}.host.bam"
         output:
-            a_ambiguous=temp("bam/disambiguate/{sample}.graft.ambiguous.bam"),
-            b_ambiguous=temp("bam/disambiguate/{sample}.host.ambiguous.bam"),
-            a_disambiguated=temp("bam/disambiguate/{sample}.graft.bam"),
-            b_disambiguated=temp("bam/disambiguate/{sample}.host.bam"),
-            summary="qc/disambiguate/{sample}.txt"
+            a_ambiguous=temp("star/disambiguated/{sample}.graft.ambiguous.bam"),
+            b_ambiguous=temp("star/disambiguated/{sample}.host.ambiguous.bam"),
+            a_disambiguated=temp("star/disambiguated/{sample}.graft.bam"),
+            b_disambiguated=temp("star/disambiguated/{sample}.host.bam"),
+            summary="qc/star/disambiguate/{sample}.txt"
         params:
             algorithm="bwa",
             prefix="{sample}",
@@ -122,9 +122,9 @@ if config["options"]["pdx"]:
 
     rule sambamba_sort_coord:
         input:
-            "bam/disambiguate/{sample}.graft.bam"
+            "star/disambiguated/{sample}.graft.bam"
         output:
-            "bam/final/{sample}.bam"
+            "star/final/{sample}.bam"
         params:
             config["sambamba_sort"]["extra"]
         threads:
@@ -135,9 +135,9 @@ if config["options"]["pdx"]:
 
     rule samtools_index:
         input:
-            "bam/final/{sample}.bam"
+            "star/final/{sample}.bam"
         output:
-            "bam/final/{sample}.bam.bai"
+            "star/final/{sample}.bam.bai"
         wrapper:
             "0.17.4/bio/samtools/index"
 else:
@@ -146,9 +146,9 @@ else:
         input:
             sample=star_inputs
         output:
-            temp("bam/star/{sample}.{lane}/Aligned.out.bam")
+            temp("star/aligned/{sample}.{lane}/Aligned.out.bam")
         log:
-            "logs/star/{sample}.{lane}.log"
+            "logs/star/alignment/{sample}.{lane}.log"
         params:
             index=config["star"]["index"],
             extra=star_extra(config["star"])
@@ -162,9 +162,9 @@ else:
 
     rule sambamba_sort:
         input:
-            "bam/star/{sample}.{lane}/Aligned.out.bam"
+            "star/aligned/{sample}.{lane}/Aligned.out.bam"
         output:
-            "bam/sorted/{sample}.{lane}.bam"
+            temp("star/sorted/{sample}.{lane}.bam")
         params:
             config["sambamba_sort"]["extra"]
         threads:
@@ -176,7 +176,7 @@ else:
     def merge_inputs(wildcards):
         lanes = get_sample_lanes(wildcards.sample)
 
-        file_paths = ["bam/sorted/{}.{}.bam".format(
+        file_paths = ["star/sorted/{}.{}.bam".format(
                         wildcards.sample, lane)
                     for lane in lanes]
 
@@ -187,7 +187,7 @@ else:
         input:
             merge_inputs
         output:
-            "bam/final/{sample}.bam"
+            "star/final/{sample}.bam"
         params:
             config["samtools_merge"]["extra"]
         threads:
@@ -198,8 +198,8 @@ else:
 
     rule samtools_index:
         input:
-            "bam/final/{sample}.bam"
+            "star/final/{sample}.bam"
         output:
-            "bam/final/{sample}.bam.bai"
+            "star/final/{sample}.bam.bai"
         wrapper:
             "0.17.4/bio/samtools/index"

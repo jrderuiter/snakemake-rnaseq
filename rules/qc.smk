@@ -15,7 +15,8 @@ def multiqc_inputs(wildcards):
     ]
 
     if config["options"]["pdx"]:
-        inputs += [expand("qc/disambiguate/{sample}.txt", sample=get_samples())]
+        inputs += [expand("qc/star/disambiguate/{sample}.txt",
+                   sample=get_samples())]
 
     return [input_ for sub_inputs in inputs for input_ in sub_inputs]
 
@@ -49,7 +50,7 @@ rule fastqc:
 
 rule samtools_stats:
     input:
-        "bam/final/{sample}.bam"
+        "star/final/{sample}.bam"
     output:
         "qc/samtools_stats/{sample}.txt"
     wrapper:

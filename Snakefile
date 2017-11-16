@@ -35,13 +35,23 @@ def get_sample_lanes(sample):
 # Rules                                                                        #
 ################################################################################
 
+def all_inputs(wildcards):
+    inputs = ["feature_counts/merged/normalized_counts.txt",
+              "qc/multiqc_report.html"]
+
+    if config["options"]["vardict"]:
+        inputs.append("vardict/merged/calls.vcf.gz")
+
+    return inputs
+
+
 rule all:
-    input:
-        "counts/merged.log2.txt",
-        "qc/multiqc_report.html"
+    input: all_inputs
+
 
 include: "rules/input.smk"
 include: "rules/fastq.smk"
-include: "rules/alignment.smk"
-include: "rules/counts.smk"
+include: "rules/star.smk"
+include: "rules/feature_counts.smk"
+include: "rules/vardict.smk"
 include: "rules/qc.smk"

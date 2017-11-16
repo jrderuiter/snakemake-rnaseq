@@ -15,13 +15,24 @@ def input_path(wildcards):
         raise ValueError("Unexpected value for pair wildcard ({})"
                          .format(wildcards.pair))
 
-    # Lookup file path.
-    key = (wildcards.sample, wildcards.lane)
-    fastq = "fastq1" if wildcards.pair == "R1" else "fastq2"
-    file_path = samples.set_index(["sample", "lane"]).loc[key, fastq]
+    # Lookup sample for given lane/sample ids.
+    subset = samples.query('sample == {!r} and lane == {!r}'
+                           .format(wildcards.sample, wildcards.lane))
+
+    if len(subset) > 1:
+        raise ValueError('Multiple samples found for {}/{}'
+                         .format(wildcards.sample, wildcards.lane))
+    elif len(subset) == 0:
+        raise ValueError('No samples found for {}/{}'
+                         .format(wildcards.sample, wildcards.lane))
+
+    # Extract file_path.
+    fastq_col = "fastq1" if wildcards.pair == "R1" else "fastq2"
+    file_path = subset.iloc[0][fastq_col]
 
     # Prepend local directory if given.
     input_dir = config["input"].get("dir", None)
+
     if input_dir is not None:
         file_path = path.join(input_dir, file_path)
 

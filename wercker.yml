@@ -1,0 +1,19 @@
+box:
+  id: quay.io/snakemake/snakemake
+  tag: v3.13.3
+  registry: quay.io
+
+build:
+  steps:
+    - script:
+        name: install dependencies
+        code: conda install pytest pandas
+
+    - script:
+        name: snakemake version
+        code: snakemake --version
+
+    - script:
+        name: run tests
+        code: |
+          SHELL=/bin/bash pytest test.py

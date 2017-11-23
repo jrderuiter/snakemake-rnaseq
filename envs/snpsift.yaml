@@ -3,5 +3,5 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - vardict ==2017.04.18
-  - samtools ==1.6
+  - snpsift =4.3.1p
+  - bcftools =1.5

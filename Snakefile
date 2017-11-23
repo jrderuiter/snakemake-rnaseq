@@ -40,7 +40,13 @@ def all_inputs(wildcards):
               "qc/multiqc_report.html"]
 
     if config["options"]["vardict"]:
-        inputs.append("vardict/merged/calls.vcf.gz")
+        inputs.append("vardict/final/calls.vcf.gz")
+
+        if config["options"]["vardict_flatten"]:
+            inputs.append("vardict/final/calls.txt")
+
+        if config["options"]["vardict_annotate"] == "vep":
+            inputs.append("vardict/merged/calls.vep_table.txt")
 
     return inputs
 

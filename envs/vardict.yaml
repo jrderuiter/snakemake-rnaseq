@@ -3,4 +3,9 @@ channels:
   - conda-forge
   - defaults
 dependencies:
+<<<<<<< HEAD
+  - vardict ==2017.04.18
+  - samtools ==1.6
+=======
   - vardict ==2017.09.24
+>>>>>>> 8dc2e1e4d873baa5f4d3da21723303a088aa2f26

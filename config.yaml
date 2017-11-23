@@ -5,6 +5,7 @@
 options:
   pdx: False
   vardict: True
+  vardict_annotate: 'vep'   # Possible values are 'vep', 'snpeff' or 'none'.
 
 
 ################################################################################
@@ -79,8 +80,24 @@ disambiguate:
 vardict:
   reference: 'input/reference.fa'
   regions: 'input/regions.bed'
+<<<<<<< HEAD
+  extra: '-f 0.1 -r 3'
+=======
   extra: ''
+>>>>>>> 8dc2e1e4d873baa5f4d3da21723303a088aa2f26
   extra_vcf: '-E -f 0.1'
 
 vardict_merge:
   extra: ''
+<<<<<<< HEAD
+
+vardict_snpeff:
+  # Use SnpEff to annotate the VCF file for effects.
+  database: 'GRCm38.86'
+  extra: '-Xmx4g -canon'
+
+vardict_vep:
+  species: 'mus_musculus'
+  extra: ''
+=======
+>>>>>>> 8dc2e1e4d873baa5f4d3da21723303a088aa2f26

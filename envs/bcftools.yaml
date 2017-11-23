@@ -4,3 +4,7 @@ channels:
   - defaults
 dependencies:
   - bcftools ==1.6
+<<<<<<< HEAD
+=======
+  - tabix ==0.2.5
+>>>>>>> 8dc2e1e4d873baa5f4d3da21723303a088aa2f26

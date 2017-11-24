@@ -62,7 +62,7 @@ rule feature_counts:
         "file://" + path.join(workflow.basedir, "wrappers/subread/feature_counts")
 
 
-rule merge_counts:
+rule feature_counts_merge:
     input:
         expand("feature_counts/per_sample/{sample}.txt", sample=get_samples())
     output:
@@ -81,7 +81,7 @@ rule merge_counts:
         merged.to_csv(output[0], sep="\t", index=True)
 
 
-rule normalize_counts:
+rule feature_counts_normalize:
     input:
         "feature_counts/merged/counts.txt"
     output:

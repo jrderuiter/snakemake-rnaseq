@@ -1,43 +1,86 @@
+from os import path
+
+
 def star_inputs(wildcards):
     """Returns fastq inputs for star."""
 
-    base_path = "fastq/trimmed/{unit}.{{pair}}.fastq.gz".format(
-        unit=wildcards.unit)
-    pairs = ["R1", "R2"] if config["options"]["paired"] else ["R1"]
+    units = get_sample_units(wildcards.sample)
+    base_path = "fastq/trimmed/{unit}.R1.fastq.gz"
 
-    return expand(base_path, pair=pairs)
+    inputs = {
+        'fastq1': [base_path.format(unit=unit, pair='R1') for unit in units]
+    }
+
+    if config["options"]["paired"]:
+        inputs['fastq2'] = [base_path.format(unit=unit, pair='R2')
+                            for unit in units]
+
+    return inputs
+
+
+def star_outputs(suffix=""):
+    """Outputs for star."""
+
+    base_dir = "star/aligned/{sample}" + suffix
+
+    if config['options']['star_fusion']:
+        outputs = [temp(path.join(base_dir, "Aligned.out.bam")),
+                   path.join(base_dir, "Chimeric.out.junction")]
+    else:
+        outputs = temp(path.join(base_dir, "Aligned.out.bam"))
+
+    return outputs
 
 
 def star_extra(wildcards):
     """Returns extra arguments for STAR based on config."""
 
-    star_config = config["rules"]["star"]
+    # Specify default arguments.
+    defaults = {
+        "--outSAMattributes": "NH HI AS nM NM",
+        "--outSAMattrRGline": _star_readgroup_str(wildcards),
+    }
 
-    extra_user = star_config.get("extra", [])
-    extra_args  = []
+    if config['options']['star_fusion']:
+        fusion_defaults = {
+            '--twopassMode': 'Basic',
+            '--outReadsUnmapped': 'None',
+            '--chimSegmentMin': 12,
+            '--chimJunctionOverhangMin': 12,
+            '--alignSJDBoverhangMin': 10,
+            '--alignMatesGapMax': 100000,
+            '--alignIntronMax': 100000,
+            '--chimSegmentReadGapMax': 'parameter 3',
+            '--alignSJstitchMismatchNmax': '5 -1 5 5'
+        }
+        defaults = {**defaults, **fusion_defaults}
 
-    # Add readgroup information.
-    if not any(arg.startswith("--outSAMattrRGline") for arg in extra_user):
-        readgroup_str = ("ID:{unit} SM:{sample} LB:{sample} "
-                         "PU:{unit} PL:{platform} CN:{centre}")
+    arg_str = "".join(config["rules"]["star"]["extra"])
+    arg_str = _add_default_args(arg_str, defaults)
 
-        readgroup_str = readgroup_str.format(
-            platform=config["options"]["readgroup"]["platform"],
-            centre=config["options"]["readgroup"]["centre"],
-            unit=wildcards.unit,
-            sample=get_sample_for_unit(wildcards.unit))
+    return arg_str
 
-        extra_args.append("--outSAMattrRGline " + readgroup_str)
 
-    # Add NM SAM attribute (required for PDX pipeline).
-    if not any(arg.startswith("--outSamAttributes") for arg in extra_user):
-        extra_args.append("--outSAMattributes NH HI AS nM NM")
+def _star_readgroup_str(wildcards):
+    """Returns (default) star readgroup string."""
+    fmt_str = ("ID:{sample} SM:{sample} LB:{sample} "
+               "PU:{sample} PL:{platform} CN:{centre}")
 
-    # Add any extra args passed by user.
-    if extra_user:
-        extra_args += extra_user
+    return fmt_str.format(
+        platform=config["options"]["readgroup"]["platform"],
+        centre=config["options"]["readgroup"]["centre"],
+        sample=wildcards.sample)
 
-    return " ".join(extra_args)
+
+def _add_default_args(arg_str, defaults, delimiter=" "):
+    """Adds default arguments into arg string."""
+
+    for key, value in defaults.items():
+        if key + delimiter not in arg_str:
+            arg_str += " {key}{delim}{value}".format(
+                key=key, delim=delimiter, value=value)
+
+    return arg_str
 
 
 if config["options"]["pdx"]:
@@ -45,11 +88,11 @@ if config["options"]["pdx"]:
     # PDX alignment rules.
     rule star_graft:
         input:
-            sample=star_inputs
+            unpack(star_inputs)
         output:
-            temp("star/aligned/{unit}.graft/Aligned.out.bam")
+            star_outputs(suffix='.graft')
         log:
-            "logs/star/alignment/{unit}.graft.log"
+            "logs/star/alignment/{sample}.graft.log"
         params:
             index=config["references"]["star_index"],
             extra=lambda wc: star_extra(wc)
@@ -58,16 +101,16 @@ if config["options"]["pdx"]:
         threads:
             config["rules"]["star"]["threads"]
         wrapper:
-            "0.17.4/bio/star/align"
+            "file://" + path.join(workflow.basedir, "wrappers/star/align")
 
 
     rule star_host:
         input:
-            sample=star_inputs
+            unpack(star_inputs)
         output:
-            temp("star/aligned/{unit}.host/Aligned.out.bam")
+            star_outputs(suffix='.host')
         log:
-            "logs/star/alignment/{unit}.host.log"
+            "logs/star/alignment/{sample}.host.log"
         params:
             index=config["references"]["star_index_host"],
             extra=lambda wc: star_extra(wc)
@@ -76,14 +119,14 @@ if config["options"]["pdx"]:
         threads:
             config["rules"]["star"]["threads"]
         wrapper:
-            "0.17.4/bio/star/align"
+            "file://" + path.join(workflow.basedir, "wrappers/star/align")
 
 
     rule sambamba_sort_qname:
         input:
-            "star/aligned/{unit}.{organism}/Aligned.out.bam"
+            "star/aligned/{sample}.{organism}/Aligned.out.bam"
         output:
-            temp("star/sorted/{unit}.{organism}.bam")
+            temp("star/sorted/{sample}.{organism}.bam")
         params:
             " ".join(config["rules"]["sambamba_sort"]["extra"] +
                      ["--natural-sort"])
@@ -93,33 +136,10 @@ if config["options"]["pdx"]:
             "0.17.4/bio/sambamba/sort"
 
 
-    def merge_inputs(wildcards):
-        units = get_sample_units(wildcards.sample)
-
-        file_paths = ["star/sorted/{}.{}.bam".format(
-                      unit, wildcards.organism)
-                    for unit in units]
-
-        return file_paths
-
-
-    rule samtools_merge:
-        input:
-            merge_inputs
-        output:
-            temp("star/merged/{sample}.{organism}.bam")
-        params:
-            " ".join(config["rules"]["samtools_merge"]["extra"] + ["-n"])
-        threads:
-            config["rules"]["samtools_merge"]["threads"]
-        wrapper:
-            "0.17.4/bio/samtools/merge"
-
-
     rule disambiguate:
         input:
-            a="star/merged/{sample}.graft.bam",
-            b="star/merged/{sample}.host.bam"
+            a="star/sorted/{sample}.graft.bam",
+            b="star/sorted/{sample}.host.bam"
         output:
             a_ambiguous=temp("star/disambiguated/{sample}.graft.ambiguous.bam"),
             b_ambiguous=temp("star/disambiguated/{sample}.host.ambiguous.bam"),
@@ -160,9 +180,9 @@ else:
         input:
             sample=star_inputs
         output:
-            temp("star/aligned/{unit}/Aligned.out.bam")
+            star_outputs()
         log:
-            "logs/star/alignment/{unit}.log"
+            "logs/star/alignment/{sample}.log"
         params:
             index=config["references"]["star_index"],
             extra=lambda wc: star_extra(wc)
@@ -176,37 +196,15 @@ else:
 
     rule sambamba_sort:
         input:
-            "star/aligned/{unit}/Aligned.out.bam"
+            "star/aligned/{sample}/Aligned.out.bam"
         output:
-            temp("star/sorted/{unit}.bam")
+            "star/final/{sample}.bam"
         params:
             " ".join(config["rules"]["sambamba_sort"]["extra"])
         threads:
             config["rules"]["sambamba_sort"]["threads"]
         wrapper:
             "0.17.4/bio/sambamba/sort"
-
-
-    def merge_inputs(wildcards):
-        units = get_sample_units(wildcards.sample)
-
-        file_paths = ["star/sorted/{}.bam".format(unit)
-                      for unit in units]
-
-        return file_paths
-
-
-    rule samtools_merge:
-        input:
-            merge_inputs
-        output:
-            "star/final/{sample}.bam"
-        params:
-            " ".join(config["rules"]["samtools_merge"]["extra"])
-        threads:
-            config["rules"]["samtools_merge"]["threads"]
-        wrapper:
-            "0.17.4/bio/samtools/merge"
 
 
     rule samtools_index:

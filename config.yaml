@@ -1,0 +1,85 @@
+input:
+    dir: input
+
+options:
+    paired: true
+    pdx: true
+    readgroup:
+        centre: NKI-AVL
+        platform: ILLUMINA
+    star_fusion: true
+    vardict:
+        call_variants: true
+        annotate_vcf: true
+        flatten_vcf: true
+
+references:
+    genome: input/reference.fa
+    gtf: input/reference.gtf
+    star_fusion: input/star_fusion_ref
+    star_index: /path/to/index
+    star_index_host: /path/to/host_index
+    vardict_regions: input/regions.bed
+
+rules:
+    bcftools_merge:
+        extra: []
+    cutadapt:
+        extra_pe:
+            - "-a AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC"
+            - "-A AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGTAGATCTCGGTGGTCGCCGTATCATT"
+            - "-q 20"
+            - "--minimum-length 20"
+        extra_se:
+            - "-a AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC"
+            - "--minimum-length 20"
+        threads: 5
+    disambiguate:
+        extra: []
+    fastqc:
+        extra: []
+    feature_counts:
+        extra: []
+        threads: 5
+    multiqc:
+        extra: []
+    sambamba_sort:
+        extra: []
+        threads: 10
+    samtools_merge:
+        extra: []
+        threads: 10
+    snpeff:
+        extra:
+            - "-Xmx4g"
+            - "-canon"
+    snpsift_extract:
+        extra: []
+        fields: []
+        sample_fields: []
+    star:
+        extra: []
+        threads: 10
+    vardict:
+        extra:
+            - "-f 0.1"
+            - "-r 3"
+        extra_vcf:
+            - "-E"
+            - "-f 0.1"
+    vep:
+        extra: []
+        species: mus_musculus
+
+samples:
+    S1:
+        - S1.L001
+        - S1.L002
+
+units:
+    S1.L001:
+        - S1.L001.R1.fastq.gz
+        - S1.L001.R2.fastq.gz
+    S1.L002:
+        - S1.L002.R1.fastq.gz
+        - S1.L002.R2.fastq.gz

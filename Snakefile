@@ -47,6 +47,10 @@ def all_inputs(wildcards):
         if config["options"]["vardict"]["annotate_vcf"] == "vep":
             inputs.append("vardict/merged/calls.vep_table.txt")
 
+    if config["options"]["star_fusion"]:
+        inputs += expand("star_fusion/output/{sample}/star-fusion.fusion_predictions.tsv",
+                         sample=get_samples())
+
     return inputs
 
 
@@ -58,6 +62,7 @@ rule all:
 include: "rules/input.smk"
 include: "rules/fastq.smk"
 include: "rules/star.smk"
+include: "rules/star_fusion.smk"
 include: "rules/feature_counts.smk"
 include: "rules/vardict.smk"
 include: "rules/qc.smk"

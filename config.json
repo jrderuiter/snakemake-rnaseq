@@ -5,22 +5,24 @@
     "options": {
         "paired": true,
         "pdx": true,
+        "readgroup": {
+            "platform": "ILLUMINA",
+            "centre": "NKI-AVL"
+        },
         "vardict": {
             "call_variants": true,
             "annotate_vcf": true,
             "flatten_vcf": true
         },
-        "readgroup": {
-            "platform": "ILLUMINA",
-            "centre": "NKI-AVL"
-        }
+        "star_fusion": true
     },
     "references": {
         "genome": "input/reference.fa",
         "gtf": "input/reference.gtf",
         "star_index": "/path/to/index",
         "star_index_host": "/path/to/host_index",
-        "vardict_regions": "input/regions.bed"
+        "vardict_regions": "input/regions.bed",
+        "star_fusion": "input/star_fusion_ref"
     },
     "samples": {
         "S1": ["S1.L001", "S1.L002"]

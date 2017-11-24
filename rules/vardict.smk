@@ -23,7 +23,7 @@ if config["options"]["vardict"]["call_variants"]:
             " > {output}"
 
 
-    rule compress_sample_vcf:
+    rule vardict_compress_sample_vcf:
         input:
             "vardict/per_sample/{sample}.vcf"
         output:
@@ -35,7 +35,7 @@ if config["options"]["vardict"]["call_variants"]:
             "bcftools index --tbi {output[0]}"
 
 
-    rule bcftools_merge:
+    rule vardict_bcftools_merge:
         input:
             expand("vardict/per_sample/{sample}.vcf.gz", sample=get_samples())
         output:
@@ -50,7 +50,7 @@ if config["options"]["vardict"]["call_variants"]:
 
     if config["options"]["vardict"]["annotate_vcf"] == "snpeff":
 
-        rule snpeff:
+        rule vardict_snpeff:
             input:
                 temp("vardict/merged/calls.vcf")
             output:
@@ -75,7 +75,7 @@ if config["options"]["vardict"]["call_variants"]:
 
     elif config["options"]["vardict"]["annotate_vcf"] == "vep":
 
-        rule vep:
+        rule vardict_vep:
             input:
                 "vardict/merged/calls.vcf"
             output:
@@ -121,7 +121,7 @@ if config["options"]["vardict"]["call_variants"]:
         prev_vcf = "vardict/merged/calls.vcf"
 
 
-    rule compress_vcf:
+    rule vardict_compress_vcf:
         input:
             prev_vcf
         output:
@@ -133,7 +133,7 @@ if config["options"]["vardict"]["call_variants"]:
             "bcftools index --tbi {output[0]}"
 
 
-    rule snpsift_extract:
+    rule vardict_snpsift_extract:
         input:
             "vardict/final/calls.vcf.gz"
         output:

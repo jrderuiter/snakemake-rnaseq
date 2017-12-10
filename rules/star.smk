@@ -1,28 +1,32 @@
 def star_inputs(wildcards):
     """Returns fastq inputs for star."""
 
-    base_path = "fastq/trimmed/{sample}.{lane}.{{pair}}.fastq.gz".format(
-        sample=wildcards.sample, lane=wildcards.lane)
-    pairs = ["R1", "R2"] if is_paired else ["R1"]
+    base_path = "fastq/trimmed/{unit}.{{pair}}.fastq.gz".format(
+        unit=wildcards.unit)
+    pairs = ["R1", "R2"] if config["options"]["paired"] else ["R1"]
 
     return expand(base_path, pair=pairs)
 
 
-def star_extra(star_config):
+def star_extra(wildcards):
     """Returns extra arguments for STAR based on config."""
 
-    extra = star_config.get("extra", "")
+    star_config = config["rules"]["star"]
+
+    extra_user = star_config.get("extra", [])
+    extra_args  = []
 
     # Add readgroup information.
-    extra_args = "--outSAMattrRGline " + star_config["readgroup"]
+    if not any(arg.startswith("--outSAMattrRGline") for arg in extra_user):
+        extra_args.append("--outSAMattrRGline " + star_config["readgroup"])
 
     # Add NM SAM attribute (required for PDX pipeline).
-    if "--outSamAttributes" not in extra:
-        extra_args += " --outSAMattributes NH HI AS nM NM"
+    if not any(arg.startswith("--outSamAttributes") for arg in extra_user):
+        extra_args.append("--outSAMattributes NH HI AS nM NM")
 
     # Add any extra args passed by user.
-    if extra:
-        extra_args += " " + extra
+    if extra_user:
+        extra_args += extra_user
 
     return extra_args
 
@@ -34,16 +38,16 @@ if config["options"]["pdx"]:
         input:
             sample=star_inputs
         output:
-            temp("star/aligned/{sample}.{lane}.graft/Aligned.out.bam")
+            temp("star/aligned/{unit}.graft/Aligned.out.bam")
         log:
-            "logs/star/alignment/{sample}.{lane}.graft.log"
+            "logs/star/alignment/{unit}.graft.log"
         params:
-            index=config["star"]["index"],
-            extra=star_extra(config["star"])
+            index=config["references"]["star_index"],
+            extra=star_extra
         resources:
             memory=30
         threads:
-            config["star"]["threads"]
+            config["rules"]["star"]["threads"]
         wrapper:
             "0.17.4/bio/star/align"
 
@@ -52,39 +56,40 @@ if config["options"]["pdx"]:
         input:
             sample=star_inputs
         output:
-            temp("star/aligned/{sample}.{lane}.host/Aligned.out.bam")
+            temp("star/aligned/{unit}.host/Aligned.out.bam")
         log:
-            "logs/star/alignment/{sample}.{lane}.host.log"
+            "logs/star/alignment/{unit}.host.log"
         params:
-            index=config["star"]["index_host"],
-            extra=star_extra(config["star"])
+            index=config["references"]["star_index_host"],
+            extra=star_extra(config["rules"]["star"])
         resources:
             memory=30
         threads:
-            config["star"]["threads"]
+            config["rules"]["star"]["threads"]
         wrapper:
             "0.17.4/bio/star/align"
 
 
     rule sambamba_sort_qname:
         input:
-            "star/aligned/{sample}.{lane}.{organism}/Aligned.out.bam"
+            "star/aligned/{unit}.{organism}/Aligned.out.bam"
         output:
-            temp("star/sorted/{sample}.{lane}.{organism}.bam")
+            temp("star/sorted/{unit}.{organism}.bam")
         params:
-            config["sambamba_sort"]["extra"] + " --natural-sort"
+            " ".join(config["rules"]["sambamba_sort"]["extra"] +
+                     ["--natural-sort"])
         threads:
-            config["sambamba_sort"]["threads"]
+            config["rules"]["sambamba_sort"]["threads"]
         wrapper:
             "0.17.4/bio/sambamba/sort"
 
 
     def merge_inputs(wildcards):
-        lanes = get_sample_lanes(wildcards.sample)
+        units = get_sample_units(wildcards.sample)
 
-        file_paths = ["star/sorted/{}.{}.{}.bam".format(
-                        wildcards.sample, lane, wildcards.organism)
-                    for lane in lanes]
+        file_paths = ["star/sorted/{}.{}.bam".format(
+                      unit, wildcards.organism)
+                    for unit in units]
 
         return file_paths
 
@@ -95,9 +100,9 @@ if config["options"]["pdx"]:
         output:
             temp("star/merged/{sample}.{organism}.bam")
         params:
-            config["samtools_merge"]["extra"] + " -n"
+            " ".join(config["rules"]["samtools_merge"]["extra"] + ["-n"])
         threads:
-            config["samtools_merge"]["threads"]
+            config["rules"]["samtools_merge"]["threads"]
         wrapper:
             "0.17.4/bio/samtools/merge"
 
@@ -115,7 +120,7 @@ if config["options"]["pdx"]:
         params:
             algorithm="bwa",
             prefix="{sample}",
-            extra=config["disambiguate"]["extra"]
+            extra=config["rules"]["disambiguate"]["extra"]
         wrapper:
             "0.17.4/bio/ngs-disambiguate"
 
@@ -126,9 +131,9 @@ if config["options"]["pdx"]:
         output:
             "star/final/{sample}.bam"
         params:
-            config["sambamba_sort"]["extra"]
+            config["rules"]["sambamba_sort"]["extra"]
         threads:
-            config["sambamba_sort"]["threads"]
+            config["rules"]["sambamba_sort"]["threads"]
         wrapper:
             "0.17.4/bio/sambamba/sort"
 
@@ -146,39 +151,39 @@ else:
         input:
             sample=star_inputs
         output:
-            temp("star/aligned/{sample}.{lane}/Aligned.out.bam")
+            temp("star/aligned/{unit}/Aligned.out.bam")
         log:
-            "logs/star/alignment/{sample}.{lane}.log"
+            "logs/star/alignment/{unit}.log"
         params:
-            index=config["star"]["index"],
-            extra=star_extra(config["star"])
+            index=config["references"]["star_index"],
+            extra=" ".join(star_extra(config["rules"]["star"])),
+            sample='test'
         resources:
             memory=30
         threads:
-            config["star"]["threads"]
+            config["rules"]["star"]["threads"]
         wrapper:
             "0.17.4/bio/star/align"
 
 
     rule sambamba_sort:
         input:
-            "star/aligned/{sample}.{lane}/Aligned.out.bam"
+            "star/aligned/{unit}/Aligned.out.bam"
         output:
-            temp("star/sorted/{sample}.{lane}.bam")
+            temp("star/sorted/{unit}.bam")
         params:
-            config["sambamba_sort"]["extra"]
+            " ".join(config["rules"]["sambamba_sort"]["extra"])
         threads:
-            config["sambamba_sort"]["threads"]
+            config["rules"]["sambamba_sort"]["threads"]
         wrapper:
             "0.17.4/bio/sambamba/sort"
 
 
     def merge_inputs(wildcards):
-        lanes = get_sample_lanes(wildcards.sample)
+        units = get_sample_units(wildcards.sample)
 
-        file_paths = ["star/sorted/{}.{}.bam".format(
-                        wildcards.sample, lane)
-                    for lane in lanes]
+        file_paths = ["star/sorted/{}.bam".format(unit)
+                      for unit in units]
 
         return file_paths
 
@@ -189,9 +194,9 @@ else:
         output:
             "star/final/{sample}.bam"
         params:
-            config["samtools_merge"]["extra"]
+            " ".join(config["rules"]["samtools_merge"]["extra"])
         threads:
-            config["samtools_merge"]["threads"]
+            config["rules"]["samtools_merge"]["threads"]
         wrapper:
             "0.17.4/bio/samtools/merge"
 

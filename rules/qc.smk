@@ -6,11 +6,11 @@ def multiqc_inputs(wildcards):
        is processing normal or PDX data and whether the data is paired."""
 
     inputs = [
-        expand("qc/fastqc/{sample_lane}.{pair}_fastqc.html",
-               sample_lane=get_samples_with_lane(),
-               pair=["R1", "R2"] if is_paired else ["R1"]),
-        expand("qc/cutadapt/{sample_lane}.txt",
-               sample_lane=get_samples_with_lane()),
+        expand("qc/fastqc/{unit}.{pair}_fastqc.html",
+               unit=get_units(),
+               pair=["R1", "R2"] if config["options"]["paired"] else ["R1"]),
+        expand("qc/cutadapt/{unit}.txt",
+               unit=get_units()),
         expand("qc/samtools_stats/{sample}.txt", sample=get_samples())
     ]
 
@@ -27,7 +27,7 @@ rule multiqc:
     output:
         "qc/multiqc_report.html"
     params:
-        config["multiqc"]["extra"]
+        " ".join(config["rules"]["multiqc"]["extra"])
     log:
         "logs/multiqc.log"
     conda:
@@ -43,7 +43,7 @@ rule fastqc:
         html="qc/fastqc/{sample}.{lane}.{pair}_fastqc.html",
         zip="qc/fastqc/{sample}.{lane}.{pair}_fastqc.zip"
     params:
-        config["fastqc"]["extra"]
+        " ".join(config["rules"]["fastqc"]["extra"])
     wrapper:
         "0.17.4/bio/fastqc"
 

@@ -1,0 +1,85 @@
+{
+    "input": {
+        "dir": "input"
+    },
+    "options": {
+        "paired": true,
+        "pdx": true,
+        "vardict": true,
+        "annotate_vcf": "none",
+        "flatten_vcf": true
+    },
+    "references": {
+        "genome": "input/reference.fa",
+        "gtf": "input/reference.gtf",
+        "star_index": "/path/to/index",
+        "star_index_host": "/path/to/host_index",
+        "vardict_regions": "input/regions.bed"
+    },
+    "samples": {
+        "S1": ["S1.L001", "S1.L002"]
+    },
+    "units": {
+        "S1.L001": ["S1.L001.R1.fastq.gz", "S1.L001.R2.fastq.gz"],
+        "S1.L002": ["S1.L002.R1.fastq.gz", "S1.L002.R2.fastq.gz"]
+    },
+    "rules": {
+        "cutadapt_se": {
+            "extra": [
+                "-a AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC",
+                "--minimum-length 20"]
+        },
+        "cutadapt_pe": {
+            "extra": [
+                "-a AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC",
+                "-A AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGTAGATCTCGGTGGTCGCCGTATCATT",
+                "-q 20",
+                "--minimum-length 20"]
+        },
+        "star": {
+            "readgroup": "ID:{unit} SM:{params.sample} LB:{params.sample} PU:{unit} PL:ILLUMINA CN:CENTRE",
+            "extra": [],
+            "threads": 10
+        },
+        "sambamba_sort": {
+            "extra": [],
+            "threads": 10
+        },
+        "samtools_merge": {
+            "extra": [],
+            "threads": 10
+        },
+        "feature_counts": {
+            "extra": [],
+            "threads": 5
+        },
+        "multiqc": {
+            "extra": []
+        },
+        "fastqc": {
+            "extra": []
+        },
+        "disambiguate": {
+            "extra": []
+        },
+        "vardict": {
+            "extra": ["-f 0.1", "-r 3"],
+            "extra_vcf": ["-E", "-f 0.1"]
+        },
+        "bcftools_merge": {
+            "extra": []
+        },
+        "snpeff": {
+            "extra": ["-Xmx4g", "-canon"]
+        },
+        "vep": {
+            "species": "mus_musculus",
+            "extra": []
+        },
+        "snpsift_extract": {
+            "fields": [],
+            "sample_fields": [],
+            "extra": []
+        }
+    }
+}

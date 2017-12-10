@@ -1,28 +1,28 @@
-if is_paired:
+if config["options"]["paired"]:
     rule cutadapt:
         input:
-            ["fastq/raw/{sample}.{lane}.R1.fastq.gz",
-             "fastq/raw/{sample}.{lane}.R2.fastq.gz"]
+            ["fastq/raw/{unit}.R1.fastq.gz",
+             "fastq/raw/{unit}.R2.fastq.gz"]
         output:
-            fastq1=temp("fastq/trimmed/{sample}.{lane}.R1.fastq.gz"),
-            fastq2=temp("fastq/trimmed/{sample}.{lane}.R2.fastq.gz"),
-            qc="qc/cutadapt/{sample}.{lane}.txt"
+            fastq1=temp("fastq/trimmed/{unit}.R1.fastq.gz"),
+            fastq2=temp("fastq/trimmed/{unit}.R2.fastq.gz"),
+            qc="qc/cutadapt/{unit}.txt"
         params:
-            config["cutadapt_pe"]["extra"]
+            config["rules"]["cutadapt_pe"]["extra"]
         log:
-            "logs/cutadapt/{sample}.{lane}.log"
+            "logs/cutadapt/{unit}.log"
         wrapper:
             "0.17.4/bio/cutadapt/pe"
 else:
     rule cutadapt:
         input:
-            "fastq/raw/{sample}.{lane}.R1.fastq.gz"
+            "fastq/raw/{unit}.R1.fastq.gz"
         output:
-            fastq=temp("fastq/trimmed/{sample}.{lane}.R1.fastq.gz"),
-            qc="qc/cutadapt/{sample}.{lane}.txt"
+            fastq=temp("fastq/trimmed/{unit}.R1.fastq.gz"),
+            qc="qc/cutadapt/{unit}.txt"
         params:
-            config["cutadapt_se"]["extra"]
+            config["rules"]["cutadapt_se"]["extra"]
         log:
-            "logs/cutadapt/{sample}.{lane}.log"
+            "logs/cutadapt/{unit}.log"
         wrapper:
             "0.17.4/bio/cutadapt/se"

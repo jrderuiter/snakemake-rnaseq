@@ -1,14 +1,6 @@
 import pandas as pd
 
-configfile: 'config.yaml'
-
-
-################################################################################
-# Globals                                                                      #
-################################################################################
-
-samples = pd.read_csv('samples.tsv', sep='\t')
-is_paired = "fastq2" in samples.columns
+configfile: 'config.json'
 
 
 ################################################################################
@@ -17,18 +9,20 @@ is_paired = "fastq2" in samples.columns
 
 def get_samples():
     """Returns list of all samples."""
-    return list(samples["sample"].unique())
+    return list(config["samples"].keys())
 
+def get_units():
+    """Returns list of units."""
+    return list(config["units"].keys())
 
-def get_samples_with_lane():
-    """Returns list of all combined lane/sample identifiers."""
-    return list((samples["sample"] + "." + samples["lane"]).unique())
-
-
-def get_sample_lanes(sample):
+def get_sample_units(sample):
     """Returns lanes for given sample."""
-    subset = samples.loc[samples["sample"] == sample]
-    return list(subset["lane"].unique())
+    return config["samples"][sample]
+
+# def get_samples_with_lane():
+#     """Returns list of all combined lane/sample identifiers."""
+#     # TODO: Check if this is correct.
+#     return list(config["units"].keys())
 
 
 ################################################################################
@@ -42,10 +36,10 @@ def all_inputs(wildcards):
     if config["options"]["vardict"]:
         inputs.append("vardict/final/calls.vcf.gz")
 
-        if config["options"]["vardict_flatten"]:
+        if config["options"]["flatten_vcf"]:
             inputs.append("vardict/final/calls.txt")
 
-        if config["options"]["vardict_annotate"] == "vep":
+        if config["options"]["annotate_vcf"] == "vep":
             inputs.append("vardict/merged/calls.vep_table.txt")
 
     return inputs

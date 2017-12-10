@@ -3,13 +3,13 @@ rule vardict:
     input:
         bam="star/final/{sample}.bam",
         bai="star/final/{sample}.bam.bai",
-        reference=config["vardict"]["reference"],
-        regions=config["vardict"]["regions"]
+        reference=config["references"]["genome"],
+        regions=config["references"]["vardict_regions"]
     output:
         temp("vardict/per_sample/{sample}.vcf")
     params:
-        options=config["vardict"]["extra"],
-        options_vcf=config["vardict"]["extra_vcf"],
+        options=" ".join(config["rules"]["vardict"]["extra"]),
+        options_vcf=" ".join(config["rules"]["vardict"]["extra_vcf"]),
         sample="{sample}"
     conda:
         path.join(workflow.basedir, "envs/vardict.yaml")
@@ -33,30 +33,31 @@ rule compress_sample_vcf:
         "bcftools index --tbi {output[0]}"
 
 
-rule vardict_merge:
+rule bcftools_merge:
     input:
         expand("vardict/per_sample/{sample}.vcf.gz", sample=get_samples())
     output:
         temp("vardict/merged/calls.vcf")
     params:
-        options=config["vardict_merge"]["extra"]
+        " ".join(config["rules"]["bcftools_merge"]["extra"])
     conda:
         path.join(workflow.basedir, "envs/bcftools.yaml")
     shell:
-        "bcftools merge {params.options} {input} > {output[0]}"
+        "bcftools merge {params} {input} > {output[0]}"
 
 
-if config["options"]["vardict_annotate"] == "snpeff":
+if config["options"]["annotate_vcf"] == "snpeff":
 
-    rule vardict_snpeff:
+    rule snpeff:
         input:
             temp("vardict/merged/calls.vcf")
         output:
             vcf=temp("vardict/merged/calls.snpeff.vcf"),
             stats="vardict/merged/calls.snpeff_summary.html"
         params:
-            database=config["vardict_snpeff"]["database"],
-            extra=config["vardict_snpeff"]["extra"] + ' -noStats'
+            database=config["rules"]["snpeff"]["database"],
+            extra=" ".join(config["rules"]["snpeff"]["extra"] +
+                           [' -noStats'])
         log:
             "logs/snpeff.log"
         conda:
@@ -70,17 +71,17 @@ if config["options"]["vardict_annotate"] == "snpeff":
 
     prev_vcf = "vardict/merged/calls.snpeff.vcf"
 
-elif config["options"]["vardict_annotate"] == "vep":
+elif config["options"]["annotate_vcf"] == "vep":
 
-    rule vardict_vep:
+    rule vep:
         input:
             "vardict/merged/calls.vcf"
         output:
             vcf=temp("vardict/merged/calls.vep.vcf"),
             summary="vardict/merged/calls.vep.vcf_summary.html"
         params:
-            species=config["vardict_vep"]["species"],
-            extra=config["vardict_vep"]["extra"]
+            species=config["rules"]["vep"]["species"],
+            extra=config["rules"]["vep"]["extra"]
         log:
             "logs/ensembl-vep.log"
         conda:
@@ -100,8 +101,8 @@ elif config["options"]["vardict_annotate"] == "vep":
             vcf="vardict/merged/calls.vep_table.txt",
             summary="vardict/merged/calls.vep_table.txt_summary.html"
         params:
-            species=config["vardict_vep"]["species"],
-            extra=config["vardict_vep"]["extra"]
+            species=config["rules"]["vep"]["species"],
+            extra=config["rules"]["vep"]["extra"]
         log:
             "logs/ensembl-vep.log"
         conda:
@@ -130,7 +131,7 @@ rule compress_vcf:
         "bcftools index --tbi {output[0]}"
 
 
-rule snpsift_extract_fields:
+rule snpsift_extract:
     input:
         "vardict/final/calls.vcf.gz"
     output:
@@ -138,9 +139,9 @@ rule snpsift_extract_fields:
     conda:
         path.join(workflow.basedir, "envs/snpsift.yaml")
     params:
-        fields=config["snpsift_extract_fields"]["fields"],
-        sample_fields=config["snpsift_extract_fields"]["sample_fields"],
-        extra=config["snpsift_extract_fields"]["extra"],
+        fields=config["rules"]["snpsift_extract"]["fields"],
+        sample_fields=config["rules"]["snpsift_extract"]["sample_fields"],
+        extra=" ".join(config["rules"]["snpsift_extract"]["extra"]),
         samples=get_samples()
     script:
         path.join(workflow.basedir, "scripts/snpsift_extract_fields.py")

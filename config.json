@@ -5,9 +5,15 @@
     "options": {
         "paired": true,
         "pdx": true,
-        "vardict": true,
-        "annotate_vcf": "none",
-        "flatten_vcf": true
+        "vardict": {
+            "call_variants": true,
+            "annotate_vcf": true,
+            "flatten_vcf": true
+        },
+        "readgroup": {
+            "platform": "ILLUMINA",
+            "centre": "NKI-AVL"
+        }
     },
     "references": {
         "genome": "input/reference.fa",
@@ -37,7 +43,6 @@
                 "--minimum-length 20"]
         },
         "star": {
-            "readgroup": "ID:{unit} SM:{params.sample} LB:{params.sample} PU:{unit} PL:ILLUMINA CN:CENTRE",
             "extra": [],
             "threads": 10
         },

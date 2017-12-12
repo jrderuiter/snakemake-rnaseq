@@ -46,7 +46,7 @@ rule bcftools_merge:
         "bcftools merge {params} {input} > {output[0]}"
 
 
-if config["options"]["annotate_vcf"] == "snpeff":
+if config["options"]["vardict"]["annotate_vcf"] == "snpeff":
 
     rule snpeff:
         input:
@@ -71,7 +71,7 @@ if config["options"]["annotate_vcf"] == "snpeff":
 
     prev_vcf = "vardict/merged/calls.snpeff.vcf"
 
-elif config["options"]["annotate_vcf"] == "vep":
+elif config["options"]["vardict"]["annotate_vcf"] == "vep":
 
     rule vep:
         input:

@@ -18,7 +18,16 @@ def star_extra(wildcards):
 
     # Add readgroup information.
     if not any(arg.startswith("--outSAMattrRGline") for arg in extra_user):
-        extra_args.append("--outSAMattrRGline " + star_config["readgroup"])
+        readgroup_str = ("ID:{unit} SM:{sample} LB:{sample} "
+                         "PU:{unit} PL:{platform} CN:{centre}")
+
+        readgroup_str = readgroup_str.format(
+            platform=config["options"]["readgroup"]["platform"],
+            centre=config["options"]["readgroup"]["centre"],
+            unit=wildcards.unit,
+            sample=get_sample_for_unit(wildcards.unit))
+
+        extra_args.append("--outSAMattrRGline " + readgroup_str)
 
     # Add NM SAM attribute (required for PDX pipeline).
     if not any(arg.startswith("--outSamAttributes") for arg in extra_user):
@@ -28,7 +37,7 @@ def star_extra(wildcards):
     if extra_user:
         extra_args += extra_user
 
-    return extra_args
+    return " ".join(extra_args)
 
 
 if config["options"]["pdx"]:
@@ -43,7 +52,7 @@ if config["options"]["pdx"]:
             "logs/star/alignment/{unit}.graft.log"
         params:
             index=config["references"]["star_index"],
-            extra=star_extra
+            extra=lambda wc: star_extra(wc)
         resources:
             memory=30
         threads:
@@ -61,7 +70,7 @@ if config["options"]["pdx"]:
             "logs/star/alignment/{unit}.host.log"
         params:
             index=config["references"]["star_index_host"],
-            extra=star_extra(config["rules"]["star"])
+            extra=lambda wc: star_extra(wc)
         resources:
             memory=30
         threads:
@@ -156,8 +165,7 @@ else:
             "logs/star/alignment/{unit}.log"
         params:
             index=config["references"]["star_index"],
-            extra=" ".join(star_extra(config["rules"]["star"])),
-            sample='test'
+            extra=lambda wc: star_extra(wc)
         resources:
             memory=30
         threads:

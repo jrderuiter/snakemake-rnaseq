@@ -52,6 +52,7 @@ def all_inputs(wildcards):
 
 rule all:
     input: all_inputs
+    output: touch(".all")
 
 
 include: "rules/input.smk"

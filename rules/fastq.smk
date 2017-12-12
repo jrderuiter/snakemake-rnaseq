@@ -9,10 +9,12 @@ if config["options"]["paired"]:
             qc="qc/cutadapt/{unit}.txt"
         params:
             config["rules"]["cutadapt_pe"]["extra"]
+        threads:
+            config["rules"]["cutadapt"]["threads"]
         log:
             "logs/cutadapt/{unit}.log"
         wrapper:
-            "0.17.4/bio/cutadapt/pe"
+            "file://" + path.join(workflow.basedir, "wrappers", "cutadapt", "pe")
 else:
     rule cutadapt:
         input:
@@ -22,7 +24,9 @@ else:
             qc="qc/cutadapt/{unit}.txt"
         params:
             config["rules"]["cutadapt_se"]["extra"]
+        threads:
+            config["rules"]["cutadapt"]["threads"]
         log:
             "logs/cutadapt/{unit}.log"
         wrapper:
-            "0.17.4/bio/cutadapt/se"
+            "file://" + path.join(workflow.basedir, "wrappers", "cutadapt", "se")

@@ -33,14 +33,16 @@
         "cutadapt_se": {
             "extra": [
                 "-a AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC",
-                "--minimum-length 20"]
+                "--minimum-length 20"],
+            "threads": 5
         },
         "cutadapt_pe": {
             "extra": [
                 "-a AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC",
                 "-A AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGTAGATCTCGGTGGTCGCCGTATCATT",
                 "-q 20",
-                "--minimum-length 20"]
+                "--minimum-length 20"],
+            "threads": 5
         },
         "star": {
             "extra": [],

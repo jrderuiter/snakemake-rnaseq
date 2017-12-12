@@ -30,14 +30,11 @@
         "S1.L002": ["S1.L002.R1.fastq.gz", "S1.L002.R2.fastq.gz"]
     },
     "rules": {
-        "cutadapt_se": {
-            "extra": [
+        "cutadapt": {
+            "extra_se": [
                 "-a AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC",
                 "--minimum-length 20"],
-            "threads": 5
-        },
-        "cutadapt_pe": {
-            "extra": [
+            "extra_pe": [
                 "-a AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC",
                 "-A AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGTAGATCTCGGTGGTCGCCGTATCATT",
                 "-q 20",

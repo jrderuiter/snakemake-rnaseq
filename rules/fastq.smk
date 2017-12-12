@@ -8,7 +8,7 @@ if config["options"]["paired"]:
             fastq2=temp("fastq/trimmed/{unit}.R2.fastq.gz"),
             qc="qc/cutadapt/{unit}.txt"
         params:
-            config["rules"]["cutadapt_pe"]["extra"]
+            config["rules"]["cutadapt"]["extra_pe"]
         threads:
             config["rules"]["cutadapt"]["threads"]
         log:
@@ -23,7 +23,7 @@ else:
             fastq=temp("fastq/trimmed/{unit}.R1.fastq.gz"),
             qc="qc/cutadapt/{unit}.txt"
         params:
-            config["rules"]["cutadapt_se"]["extra"]
+            config["rules"]["cutadapt"]["extra_se"]
         threads:
             config["rules"]["cutadapt"]["threads"]
         log:

@@ -36,9 +36,11 @@ def estimate_size_factors(counts):
 
 
 def feature_counts_extra(wildcards):
-    extra = config["feature_counts"]["extra"]
-    if is_paired:
-        extra += " -p"
+    extra = config["rules"]["feature_counts"]["extra"]
+
+    if config["options"]["paired"]:
+        extra.append("-p")
+
     return extra
 
 
@@ -46,14 +48,14 @@ rule feature_counts:
     input:
         bam="star/final/{sample}.bam",
         bai="star/final/{sample}.bam.bai",
+        annotation=config["references"]["gtf"]
     output:
         counts="feature_counts/per_sample/{sample}.txt",
         summary="qc/feature_counts/{sample}.txt"
     params:
-        annotation=config["feature_counts"]["annotation"],
         extra=feature_counts_extra
     threads:
-        config["feature_counts"]["threads"]
+        config["rules"]["feature_counts"]["threads"]
     log:
         "logs/feature_counts/{sample}.txt"
     wrapper:

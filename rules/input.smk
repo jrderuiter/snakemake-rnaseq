@@ -11,24 +11,16 @@ FTP = FTPRemoteProvider(**config["input"].get("ftp", {}))
 def input_path(wildcards):
     """Extracts input path from sample overview."""
 
-    if wildcards.pair not in {"R1", "R2"}:
+    # Lookup file path for given unit/pair.
+    if wildcards.pair == "R1":
+        pair_index = 0
+    elif wildcards.pair == "R2":
+        pair_index = 1
+    else:
         raise ValueError("Unexpected value for pair wildcard ({})"
                          .format(wildcards.pair))
 
-    # Lookup sample for given lane/sample ids.
-    subset = samples.query('sample == {!r} and lane == {!r}'
-                           .format(wildcards.sample, wildcards.lane))
-
-    if len(subset) > 1:
-        raise ValueError('Multiple samples found for {}/{}'
-                         .format(wildcards.sample, wildcards.lane))
-    elif len(subset) == 0:
-        raise ValueError('No samples found for {}/{}'
-                         .format(wildcards.sample, wildcards.lane))
-
-    # Extract file_path.
-    fastq_col = "fastq1" if wildcards.pair == "R1" else "fastq2"
-    file_path = subset.iloc[0][fastq_col]
+    file_path = config["units"][wildcards.unit][pair_index]
 
     # Prepend local directory if given.
     input_dir = config["input"].get("dir", None)
@@ -57,7 +49,7 @@ rule copy_input:
     input:
         input_path
     output:
-        temp("fastq/raw/{sample}.{lane}.{pair}.fastq.gz")
+        temp("fastq/raw/{unit}.{pair}.fastq.gz")
     resources:
         io=1
     shell:

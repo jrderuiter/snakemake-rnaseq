@@ -1,14 +1,12 @@
 import pandas as pd
 
-configfile: 'config.yaml'
+if not config:
+    raise ValueError("A config file must be provided using --configfile")
 
+def _invert_dict(d):
+    return dict( (v,k) for k in d for v in d[k] )
 
-################################################################################
-# Globals                                                                      #
-################################################################################
-
-samples = pd.read_csv('samples.tsv', sep='\t')
-is_paired = "fastq2" in samples.columns
+_unit_sample_lookup = _invert_dict(config['samples'])
 
 
 ################################################################################
@@ -17,18 +15,19 @@ is_paired = "fastq2" in samples.columns
 
 def get_samples():
     """Returns list of all samples."""
-    return list(samples["sample"].unique())
+    return list(config["samples"].keys())
 
+def get_units():
+    """Returns list of units."""
+    return list(config["units"].keys())
 
-def get_samples_with_lane():
-    """Returns list of all combined lane/sample identifiers."""
-    return list((samples["sample"] + "." + samples["lane"]).unique())
-
-
-def get_sample_lanes(sample):
+def get_sample_units(sample):
     """Returns lanes for given sample."""
-    subset = samples.loc[samples["sample"] == sample]
-    return list(subset["lane"].unique())
+    return config["samples"][sample]
+
+def get_sample_for_unit(unit):
+    """Returns sample for given unit."""
+    return _unit_sample_lookup[unit]
 
 
 ################################################################################
@@ -39,13 +38,13 @@ def all_inputs(wildcards):
     inputs = ["feature_counts/merged/normalized_counts.txt",
               "qc/multiqc_report.html"]
 
-    if config["options"]["vardict"]:
+    if config["options"]["vardict"]["call_variants"]:
         inputs.append("vardict/final/calls.vcf.gz")
 
-        if config["options"]["vardict_flatten"]:
+        if config["options"]["vardict"]["flatten_vcf"]:
             inputs.append("vardict/final/calls.txt")
 
-        if config["options"]["vardict_annotate"] == "vep":
+        if config["options"]["vardict"]["annotate_vcf"] == "vep":
             inputs.append("vardict/merged/calls.vep_table.txt")
 
     return inputs
@@ -53,6 +52,7 @@ def all_inputs(wildcards):
 
 rule all:
     input: all_inputs
+    output: touch(".all")
 
 
 include: "rules/input.smk"

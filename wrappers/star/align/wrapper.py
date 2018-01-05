@@ -7,12 +7,10 @@ import os
 from snakemake.shell import shell
 
 # Extract fastq paths and convert to concatenated str.
-fastq1_str = ",".join(snakemake.input.fastq1)
+fastq_str = ",".join(snakemake.input.fastq1)
 
 if hasattr(snakemake.input, "fastq2"):
-    fastq2_str = ",".join(snakemake.input.fastq2)
-else:
-    fastq2_str = ""
+    fastq_str += " " + ",".join(snakemake.input.fastq2)
 
 # Determine if we need to use gzip.
 if snakemake.input.fastq1[0].endswith(".gz"):
@@ -30,7 +28,7 @@ shell("STAR "
       "{snakemake.params.extra} "
       "--runThreadN {snakemake.threads} "
       "--genomeDir {snakemake.params.index} "
-      "--readFilesIn {snakemake.input.sample} "
+      "--readFilesIn {fastq_str} "
       "{readcmd} "
       "--outSAMtype BAM Unsorted "
       "--outFileNamePrefix {outprefix} "

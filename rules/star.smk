@@ -5,7 +5,7 @@ def star_inputs(wildcards):
     """Returns fastq inputs for star."""
 
     units = get_sample_units(wildcards.sample)
-    base_path = "fastq/trimmed/{unit}.R1.fastq.gz"
+    base_path = "fastq/trimmed/{unit}.{pair}.fastq.gz"
 
     inputs = {
         'fastq1': [base_path.format(unit=unit, pair='R1') for unit in units]
@@ -160,7 +160,7 @@ if config["options"]["pdx"]:
         output:
             "star/final/{sample}.bam"
         params:
-            config["rules"]["sambamba_sort"]["extra"]
+            " ".join(config["rules"]["sambamba_sort"]["extra"])
         threads:
             config["rules"]["sambamba_sort"]["threads"]
         wrapper:

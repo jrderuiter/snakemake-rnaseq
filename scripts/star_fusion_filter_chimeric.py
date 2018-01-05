@@ -21,7 +21,7 @@ def main():
     # Read querynames from filtered bam.
     logging.info('Reading querynames from bam file(s)')
 
-    query_names = {}
+    query_names = set()
     for bam_path in args.bam_files:
         with pysam.AlignmentFile(bam_path) as bam_file:
             query_names |= {aln.query_name for aln in bam_file}

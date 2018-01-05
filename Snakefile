@@ -48,8 +48,7 @@ def all_inputs(wildcards):
             inputs.append("vardict/merged/calls.vep_table.txt")
 
     if config["options"]["star_fusion"]:
-        inputs += expand("star_fusion/output/{sample}/star-fusion.fusion_predictions.tsv",
-                         sample=get_samples())
+        inputs += ["star_fusion/merged.txt"]
 
     return inputs
 

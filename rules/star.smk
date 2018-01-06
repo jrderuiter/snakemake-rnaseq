@@ -178,7 +178,7 @@ else:
     # 'Standard' alignment rules.
     rule star:
         input:
-            sample=star_inputs
+            unpack(star_inputs)
         output:
             star_outputs()
         log:

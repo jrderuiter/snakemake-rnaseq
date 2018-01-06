@@ -191,7 +191,7 @@ else:
         threads:
             config["rules"]["star"]["threads"]
         wrapper:
-            "0.17.4/bio/star/align"
+            "file://" + path.join(workflow.basedir, "wrappers/star/align")
 
 
     rule sambamba_sort:

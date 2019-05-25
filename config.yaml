@@ -10,7 +10,7 @@ options:
     star_fusion: true
     vardict:
         call_variants: true
-        annotate_vcf: true
+        annotate_vcf: vep  # vep or snpeff
         flatten_vcf: true
 
 references:
